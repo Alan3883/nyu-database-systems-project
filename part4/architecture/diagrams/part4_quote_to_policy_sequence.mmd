@@ -1,0 +1,62 @@
+---
+title: Part IV - quote to policy application sequence
+---
+sequenceDiagram
+    autonumber
+    actor Agent as Agent / Customer
+    participant Web as Flask route
+    participant QS as quote_service
+    participant PS as policy_service
+    participant RC as regional_context_service
+    participant ORM as SQLAlchemy session
+    participant DB as PostgreSQL 16
+
+    Agent->>Web: POST /quotes/new
+    Web->>QS: create_quote(...)
+    QS->>ORM: add QUOTE + QUOTE_STATUS_HISTORY
+    ORM->>DB: BEGIN / INSERT x2 / COMMIT
+    Note over ORM,DB: One transaction.<br/>A quote without its opening<br/>history row cannot exist.
+    DB-->>Agent: Quote Q4-... created as Draft
+
+    Agent->>Web: POST /quotes/{id}/coverage
+    Web->>QS: add_coverage(...)
+    QS->>ORM: INSERT QUOTE_COVERAGE
+    QS->>ORM: UPDATE QUOTE.EstimatedPremium
+    Note over QS: Demonstration rule:<br/>limit and deductible only.<br/>No ML or health input.
+    ORM->>DB: COMMIT
+
+    Agent->>Web: POST /quotes/{id}/transition
+    Web->>QS: transition(Submitted / Rated / Presented)
+    QS->>DB: SELECT ... FOR UPDATE
+    QS->>ORM: UPDATE QUOTE + INSERT history
+    ORM->>DB: COMMIT
+
+    Agent->>Web: GET /quotes/{id}
+    Web->>RC: account_context(account, active run)
+    RC->>DB: SELECT from MV_ACCOUNT_REGIONAL_HEALTH_PROFILE
+    RC->>DB: SELECT approved mappings (reviewed AND active)
+    RC-->>Web: aggregate indicators + approved themes
+    Web-->>Agent: "Research context - not a rating input"
+
+    Agent->>Web: POST /quotes/{id}/payment
+    Web->>QS: authorize_payment(...)
+    QS->>ORM: INSERT PAYMENT_AUTHORIZATION
+    Note over QS,DB: Authorisation reference only.<br/>No cardholder data.
+    ORM->>DB: COMMIT
+
+    Agent->>Web: POST /quotes/{id}/transition (Accepted)
+    Web->>QS: transition(Accepted)
+    QS-->>Web: rejected unless payment is authorized
+
+    Agent->>Web: POST /quotes/{id}/issue
+    Web->>PS: issue_policy(...)
+    PS->>DB: SELECT quote FOR UPDATE
+    PS->>DB: check QUOTE_CONVERSION
+    PS->>ORM: INSERT CONTRACT
+    PS->>ORM: INSERT CONTRACT_BENEFIT (per coverage)
+    PS->>ORM: INSERT CONTRACT_PREMIUM (per benefit)
+    PS->>ORM: INSERT QUOTE_CONVERSION
+    PS->>ORM: UPDATE QUOTE = Converted + history
+    ORM->>DB: COMMIT
+    Note over PS,DB: All six writes commit together.<br/>UNIQUE(QuoteID) rejects a<br/>second conversion under any race.
+    DB-->>Agent: Policy POL-... issued

@@ -1,0 +1,64 @@
+==============================================================================
+Part IV retraining demonstration
+Generated 2026-08-12T21:31:34+00:00
+==============================================================================
+
+Baseline: active ML_RUN=1 (1.0.0), runs=1 completed=1 failed=0, DS010 asset versions=1, current asset=10 (v1), clusters=6 unreviewed=5
+
+------------------------------------------------------------------------------
+TEST A - unchanged source
+------------------------------------------------------------------------------
+   Command: monitor --once (watched DS010 raw file)
+   PASS  checksum unchanged, no retraining, no new ML_RUN
+         changed=False retrained=False; active ML_RUN=1 (1.0.0), runs=1 completed=1 failed=0, DS010 asset versions=1, current asset=10 (v1), clusters=6 unreviewed=5
+
+------------------------------------------------------------------------------
+TEST B - source changed
+------------------------------------------------------------------------------
+   Command: monitor --once --source part4/tests/fixtures/chr_2025_report_revised.pdf
+   PASS  new versioned asset, new ML_RUN, results loaded, all unreviewed
+         ML_RUN 27 version 1.1.0, asset v2, K=2, 20 chunks; active ML_RUN=27 (1.1.0), runs=2 completed=2 failed=0, DS010 asset versions=2, current asset=11 (v2), clusters=2 unreviewed=2
+   PASS  previous raw version preserved, not overwritten
+         new version raw/unstructured_documents/versions/chr_2025_report_revised_v2_a6d49caff26d.pdf written; original raw file still present and unmodified
+
+------------------------------------------------------------------------------
+TEST B2 - repeat the same check (idempotency)
+------------------------------------------------------------------------------
+   Command: monitor --once --source part4/tests/fixtures/chr_2025_report_revised.pdf  (again)
+   PASS  second pass on unchanged input creates no duplicate run
+         changed=False retrained=False; active ML_RUN=27 (1.1.0), runs=2 completed=2 failed=0, DS010 asset versions=2, current asset=11 (v2), clusters=2 unreviewed=2
+
+------------------------------------------------------------------------------
+TEST C - controlled retraining failure
+------------------------------------------------------------------------------
+   Command: PART4_FORCE_RETRAIN_FAILURE=train monitor --once --source part4/tests/fixtures/chr_2025_report_partial.pdf
+   The injected failure occurs after the ML_RUN row is opened and before any result is written.
+   PASS  previous model stays active, failure recorded, no partial results
+         ML_RUN 28 status=Failed with 0 cluster rows; active model unchanged at ML_RUN 27; error recorded: Injected failure at stage 'train' (PART4_FORCE_RETRAIN_FAILURE).
+   PASS  the new raw version is still registered after the failure
+         Raw-asset capture is a separate, append-only ingestion step. The bytes that arrived are recorded even though the model built from them was rejected.
+
+------------------------------------------------------------------------------
+TEST D - source restored to the original DS010 report
+------------------------------------------------------------------------------
+   Command: monitor --once (watched DS010 raw file)
+   PASS  restored source is detected and retrained, ending in a consistent state
+         ML_RUN 29 version 1.3.0 on asset v4, K=6, 32 chunks; active ML_RUN=29 (1.3.0), runs=4 completed=3 failed=1, DS010 asset versions=4, current asset=13 (v4), clusters=6 unreviewed=6
+   PASS  final state: watched file matches the registered checksum
+         No change. Checksum 1d2e55927cd5bab4... matches asset version v4. No retraining.
+
+==============================================================================
+8/8 checks passed
+==============================================================================
+
+ML_RUN history
+  run 1  1.0.0   Completed  asset=-    K=6  
+  run 27  1.1.0   Completed  asset=v2   K=2  
+  run 28  1.2.0   Failed     asset=v3   K=-  Injected failure at stage 'train' (PART4_FORCE_RETRAIN_FAILURE).
+  run 29  1.3.0   Completed  asset=v4   K=6  
+
+DS010 asset versions
+  asset 10  v1   Superseded  sha256=1d2e55927cd5bab4...  raw/unstructured_documents/chr_2025_national_report.pdf
+  asset 11  v2   Superseded  sha256=a6d49caff26dcb59...  raw/unstructured_documents/versions/chr_2025_report_revised_v2_a6d49caff26d.pdf
+  asset 12  v3   Superseded  sha256=844ebb81916cf9cd...  raw/unstructured_documents/versions/chr_2025_report_partial_v3_844ebb81916c.pdf
+  asset 13  v4   Stored      sha256=1d2e55927cd5bab4...  raw/unstructured_documents/versions/chr_2025_national_report_v4_1d2e55927cd5.pdf

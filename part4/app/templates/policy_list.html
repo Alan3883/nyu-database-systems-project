@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Policies{% endblock %}
+{% block content %}
+<h2>Issued policies (CONTRACT)</h2>
+<div class="panel">
+  <table>
+    <thead><tr><th>Contract number</th><th>Account</th><th>Line of business</th>
+      <th>Effective</th><th>End</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for c in contracts %}
+      <tr>
+        <td><a href="{{ url_for('policies.policy_detail', contract_id=c.contract_id) }}">{{ c.contract_number }}</a></td>
+        <td>{{ c.account.account_name if c.account else '—' }}</td>
+        <td>{{ c.line_of_business or '—' }}</td>
+        <td>{{ c.effective_date or '—' }}</td>
+        <td>{{ c.end_date or '—' }}</td>
+        <td><span class="tag accepted">{{ c.status }}</span></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No contracts.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="small muted">An issued policy is a CONTRACT row. Part III decided
+    against a parallel POLICY table so the premium history stays in one place.</p>
+</div>
+{% endblock %}

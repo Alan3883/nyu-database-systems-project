@@ -1,0 +1,50 @@
+flowchart LR
+    subgraph SRC[External Public Sources]
+        S1[CDC PLACES]
+        S2[CDC Chronic Disease Indicators]
+        S3[County Health Rankings]
+        S4[Census ACS 5-Year]
+        S5[CHR / State PDF reports]
+    end
+
+    subgraph LAKE[Google Cloud Storage Bucket]
+        RAW[Raw Zone]
+        PROC[Processed Zone]
+        CUR[Curated Zone]
+        META[Metadata Zone]
+    end
+
+    CDF[Cloud Data Fusion\nIngestion + Processing + Data Quality]
+    PG[(Cloud SQL for PostgreSQL\nODS / Logical Schema)]
+
+    subgraph CONSUME[Reporting and Analytics]
+        RPT[Looker Studio Reporting]
+        CLAIMS[Claims Planning]
+        PROD[Product Design]
+        RATE[Rate Book Review]
+    end
+
+    subgraph GOV[Governance and DIKW Controls]
+        MG[Metadata Management]
+        DQ[Data Quality]
+        AC[Cloud IAM Access Control]
+        ENC[Encryption]
+        RET[Retention]
+        AUD[Cloud Audit Logs]
+        DPX[Dataplex Universal Catalog - optional]
+    end
+
+    SRC --> CDF
+    CDF --> RAW
+    RAW --> PROC
+    PROC --> CUR
+    META -.-> RAW
+    META -.-> PROC
+    META -.-> CUR
+    CUR --> PG
+    PG --> RPT
+    PG --> CLAIMS
+    PG --> PROD
+    PG --> RATE
+    GOV -.-> LAKE
+    GOV -.-> PG

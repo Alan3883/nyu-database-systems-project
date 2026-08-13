@@ -1,0 +1,5 @@
+DatasetID,DatasetName,RowCount,ColumnCount,DuplicateRows,MissingCells,MissingPercent,GeoKeyColumn,GeoKeyMissing,YearColumn,InvalidYearRows,EmptyFile
+DS001,CDC PLACES County 2025,229298,22,0,458794,9.09,LocationID,0,Year,0,no
+DS002,US Chronic Disease Indicators,398793,34,0,5098425,37.6,LocationID,0,YearStart,0,no
+DS004,County Health Rankings Analytic 2025,3204,796,0,1287460,50.48,fipscode,-1,year,,no
+DS009,ACS 5-Year S2701 Health Insurance County,3222,1225,0,1955256,49.54,GEO_ID,0,,,no

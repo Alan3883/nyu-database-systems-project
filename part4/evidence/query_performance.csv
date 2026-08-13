@@ -1,0 +1,10 @@
+path,sql_statements,driver_ms_median,wall_ms_median,wall_ms_min,repeats
+1. Dashboard,7,4.765,6.625,5.29,7
+"2a. Quote list, lazy loading (before)",26,7.136,10.829,9.512,7
+"2b. Quote list, selectinload (after)",2,0.662,1.62,1.514,7
+"3a. Quote detail, lazy loading",8,1.942,3.363,3.068,7
+"3b. Quote detail, selectinload",8,1.906,4.168,3.734,7
+4. Policy detail,6,1.406,2.98,2.66,7
+"5a. Regional context, materialized view",2,0.708,1.553,1.34,7
+"5b. Regional context, five-table join",1,0.832,1.276,1.207,7
+6. ML review page,4,1.033,2.141,1.912,7

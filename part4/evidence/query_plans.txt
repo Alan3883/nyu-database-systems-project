@@ -1,0 +1,151 @@
+EXPLAIN (ANALYZE, BUFFERS) for the Part IV application read paths.
+Run against the live part3 database.
+
+--- Dashboard: quote counts by status ---
+SELECT quotestatus, count(*) FROM quote GROUP BY quotestatus
+
+HashAggregate  (cost=13.00..13.07 rows=7 width=16) (actual time=0.055..0.056 rows=7 loops=1)
+  Group Key: quotestatus
+  Batches: 1  Memory Usage: 24kB
+  Buffers: shared hit=7
+  ->  Seq Scan on quote  (cost=0.00..11.00 rows=400 width=8) (actual time=0.002..0.021 rows=432 loops=1)
+        Buffers: shared hit=7
+Planning Time: 0.016 ms
+Execution Time: 0.061 ms
+
+--- Quote detail: quote header by id ---
+SELECT * FROM quote WHERE quoteid = :q
+
+Index Scan using quote_pkey on quote  (cost=0.27..8.29 rows=1 width=82) (actual time=0.004..0.004 rows=1 loops=1)
+  Index Cond: (quoteid = '458'::smallint)
+  Buffers: shared hit=3
+Planning Time: 0.013 ms
+Execution Time: 0.012 ms
+
+--- Quote detail: status history for one quote ---
+SELECT * FROM quote_status_history WHERE quoteid = :q ORDER BY changedat
+
+Sort  (cost=10.33..10.33 rows=2 width=70) (actual time=0.009..0.009 rows=6 loops=1)
+  Sort Key: changedat
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=3
+  ->  Bitmap Heap Scan on quote_status_history  (cost=4.29..10.32 rows=2 width=70) (actual time=0.006..0.006 rows=6 loops=1)
+        Recheck Cond: (quoteid = '458'::smallint)
+        Heap Blocks: exact=1
+        Buffers: shared hit=3
+        ->  Bitmap Index Scan on ix_qsh_quote_changed  (cost=0.00..4.29 rows=2 width=0) (actual time=0.004..0.004 rows=6 loops=1)
+              Index Cond: (quoteid = '458'::smallint)
+              Buffers: shared hit=2
+Planning Time: 0.017 ms
+Execution Time: 0.013 ms
+
+--- Policy detail: benefits and premiums for one contract ---
+SELECT b.*, p.* FROM contract_benefit b LEFT JOIN contract_premium p ON p.benefitid = b.benefitid WHERE b.contractid = :c
+
+Hash Right Join  (cost=1.69..3.38 rows=1 width=69) (actual time=0.013..0.015 rows=2 loops=1)
+  Hash Cond: (p.benefitid = b.benefitid)
+  Buffers: shared hit=2
+  ->  Seq Scan on contract_premium p  (cost=0.00..1.54 rows=54 width=30) (actual time=0.001..0.003 rows=82 loops=1)
+        Buffers: shared hit=1
+  ->  Hash  (cost=1.68..1.68 rows=1 width=39) (actual time=0.004..0.004 rows=2 loops=1)
+        Buckets: 1024  Batches: 1  Memory Usage: 9kB
+        Buffers: shared hit=1
+        ->  Seq Scan on contract_benefit b  (cost=0.00..1.68 rows=1 width=39) (actual time=0.003..0.003 rows=2 loops=1)
+              Filter: (contractid = '1199'::smallint)
+              Rows Removed by Filter: 80
+              Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=15
+Planning Time: 0.077 ms
+Execution Time: 0.020 ms
+
+--- Regional context: materialized view for one account ---
+SELECT * FROM mv_account_regional_health_profile WHERE accountid = :a ORDER BY measurevalue DESC NULLS LAST LIMIT 15
+
+Limit  (cost=21.59..21.63 rows=15 width=160) (actual time=0.030..0.031 rows=15 loops=1)
+  Buffers: shared hit=16
+  ->  Sort  (cost=21.59..21.71 rows=50 width=160) (actual time=0.030..0.030 rows=15 loops=1)
+        Sort Key: measurevalue DESC NULLS LAST
+        Sort Method: top-N heapsort  Memory: 31kB
+        Buffers: shared hit=16
+        ->  Seq Scan on mv_account_regional_health_profile  (cost=0.00..20.36 rows=50 width=160) (actual time=0.003..0.020 rows=50 loops=1)
+              Filter: (accountid = '1'::smallint)
+              Rows Removed by Filter: 299
+              Buffers: shared hit=16
+Planning Time: 0.029 ms
+Execution Time: 0.035 ms
+
+--- Regional context: the same read as a five-table join ---
+SELECT hi.IndicatorName, ho.MeasureValue, ho.ObservationYear
+                   FROM ACCOUNT a
+                   JOIN ACCOUNT_GEOGRAPHY  ag ON ag.AccountID   = a.AccountID
+                   JOIN GEOGRAPHIC_AREA     g ON g.GeographyID  = ag.GeographyID
+                   JOIN HEALTH_OBSERVATION ho ON ho.GeographyID = g.GeographyID
+                   JOIN HEALTH_INDICATOR   hi ON hi.IndicatorID = ho.IndicatorID
+                   WHERE a.AccountID = :a
+                   ORDER BY ho.MeasureValue DESC NULLS LAST LIMIT 15
+
+Limit  (cost=34.43..34.44 rows=3 width=68) (actual time=0.109..0.111 rows=15 loops=1)
+  Buffers: shared hit=210
+  ->  Sort  (cost=34.43..34.44 rows=3 width=68) (actual time=0.109..0.110 rows=15 loops=1)
+        Sort Key: ho.measurevalue DESC NULLS LAST
+        Sort Method: top-N heapsort  Memory: 27kB
+        Buffers: shared hit=210
+        ->  Nested Loop  (cost=6.34..34.41 rows=3 width=68) (actual time=0.032..0.100 rows=50 loops=1)
+              Buffers: shared hit=210
+              ->  Nested Loop  (cost=6.19..33.69 rows=3 width=14) (actual time=0.030..0.082 rows=50 loops=1)
+                    Buffers: shared hit=110
+                    ->  Seq Scan on account a  (cost=0.00..1.62 rows=1 width=4) (actual time=0.004..0.004 rows=1 loops=1)
+                          Filter: (accountid = '1'::smallint)
+                          Rows Removed by Filter: 49
+                          Buffers: shared hit=1
+                    ->  Nested Loop  (cost=6.19..32.04 rows=3 width=18) (actual time=0.026..0.075 rows=50 loops=1)
+                          Join Filter: (ag.geographyid = g.geographyid)
+                          Buffers: shared hit=109
+                          ->  Hash Join  (cost=5.91..18.61 rows=30 width=26) (actual time=0.020..0.047 rows=50 loops=1)
+                                Hash Cond: (ho.geographyid = ag.geographyid)
+                                Buffers: shared hit=8
+                                ->  Seq Scan on health_observation ho  (cost=0.00..9.20 rows=320 width=18) (actual time=0.002..0.015 rows=320 loops=1)
+                                      Buffers: shared hit=6
+                                ->  Hash  (cost=5.60..5.60 rows=25 width=8) (actual time=0.012..0.012 rows=25 loops=1)
+                                      Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                      Buffers: shared hit=2
+                                      ->  Seq Scan on account_geography ag  (cost=0.00..5.60 rows=25 width=8) (actual time=0.002..0.009 rows=25 loops=1)
+                                            Filter: (accountid = '1'::smallint)
+                                            Rows Removed by Filter: 263
+                                            Buffers: shared hit=2
+                          ->  Index Only Scan using geographic_area_pkey on geographic_area g  (cost=0.28..0.44 rows=1 width=4) (actual time=0.000..0.000 rows=1 loops=50)
+                                Index Cond: (geographyid = ho.geographyid)
+                                Heap Fetches: 0
+                                Buffers: shared hit=101
+              ->  Index Scan using health_indicator_pkey on health_indicator hi  (cost=0.14..0.24 rows=1 width=62) (actual time=0.000..0.000 rows=1 loops=50)
+                    Index Cond: (indicatorid = ho.indicatorid)
+                    Buffers: shared hit=100
+Planning:
+  Buffers: shared hit=29
+Planning Time: 0.447 ms
+Execution Time: 0.130 ms
+
+--- ML review: cluster summaries for one run ---
+SELECT * FROM ml_cluster_summary WHERE mlrunid = :r ORDER BY clusterid
+
+Sort  (cost=4.25..4.25 rows=1 width=606) (actual time=0.010..0.010 rows=6 loops=1)
+  Sort Key: clusterid
+  Sort Method: quicksort  Memory: 28kB
+  Buffers: shared hit=4
+  ->  Seq Scan on ml_cluster_summary  (cost=0.00..4.24 rows=1 width=606) (actual time=0.005..0.007 rows=6 loops=1)
+        Filter: (mlrunid = '29'::smallint)
+        Rows Removed by Filter: 8
+        Buffers: shared hit=4
+Planning Time: 0.019 ms
+Execution Time: 0.014 ms
+
+--- ML review: approved indicator mappings for one run ---
+SELECT * FROM ml_cluster_indicator_map WHERE mlrunid = :r AND isactive
+
+Index Scan using uq_mcim_active on ml_cluster_indicator_map  (cost=0.14..8.16 rows=1 width=775) (actual time=0.004..0.004 rows=1 loops=1)
+  Index Cond: (mlrunid = '29'::smallint)
+  Filter: isactive
+  Buffers: shared hit=2
+Planning Time: 0.016 ms
+Execution Time: 0.006 ms

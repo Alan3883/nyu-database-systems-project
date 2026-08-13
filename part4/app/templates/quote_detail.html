@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}Quote {{ quote.quote_number }}{% endblock %}
+{% block content %}
+
+<h2>Quote {{ quote.quote_number }}
+  <span class="tag {{ quote.quote_status|lower }}">{{ quote.quote_status }}</span></h2>
+
+<div class="grid cols-2">
+
+  <div class="panel">
+    <h3>Quote</h3>
+    <dl class="kv">
+      <dt>Quote ID</dt><dd>{{ quote.quote_id }}</dd>
+      <dt>Customer</dt><dd>{{ quote.customer.display_name }} (ID {{ quote.customer_id }})</dd>
+      <dt>Account</dt>
+      <dd>
+        {% if quote.account %}
+          {{ quote.account.account_name }} (ID {{ quote.account_id }})
+          {% if quote.account.city %}<div class="small muted">{{ quote.account.city }}, {{ quote.account.state }}</div>{% endif %}
+        {% else %}—{% endif %}
+      </dd>
+      <dt>Product line</dt><dd>{{ quote.product_line }}</dd>
+      <dt>Requested</dt><dd>{{ quote.requested_date }}</dd>
+      <dt>Effective</dt><dd>{{ quote.effective_date or '—' }}</dd>
+      <dt>Expiration</dt><dd>{{ quote.expiration_date or '—' }}</dd>
+      <dt>Estimated premium</dt><dd><strong>{{ '%.2f'|format(quote.estimated_premium or 0) }}</strong>
+        <span class="small muted">sum of coverage lines</span></dd>
+      <dt>Payment</dt>
+      <dd>
+        {% set auth = quote.authorized_payment %}
+        {% if auth %}
+          <span class="tag ok">{{ auth.authorization_status }}</span>
+          <div class="mono small">{{ auth.authorization_reference }} · {{ auth.payment_method_type }} · {{ '%.2f'|format(auth.authorized_amount) }}</div>
+          <div class="small muted">No cardholder data is stored.</div>
+        {% else %}
+          <span class="tag warn">not authorized</span>
+        {% endif %}
+      </dd>
+      <dt>Converted policy</dt>
+      <dd>
+        {% if conversion %}
+          <a href="{{ url_for('policies.policy_detail', contract_id=conversion.contract_id) }}">Contract {{ conversion.contract_id }}</a>
+          <div class="small muted">Converted {{ conversion.converted_at.strftime('%Y-%m-%d %H:%M') if conversion.converted_at }}</div>
+        {% else %}—{% endif %}
+      </dd>
+    </dl>
+  </div>
+
+  <div class="panel">
+    <h3>Coverage</h3>
+    <table>
+      <thead><tr><th>Coverage</th><th class="num">Limit</th><th class="num">Deductible</th><th class="num">Proposed premium</th></tr></thead>
+      <tbody>
+        {% for c in quote.coverages %}
+        <tr>
+          <td>{{ c.coverage_name }}</td>
+          <td class="num">{{ '%.2f'|format(c.coverage_limit or 0) }}</td>
+          <td class="num">{{ '%.2f'|format(c.deductible or 0) }}</td>
+          <td class="num">{{ '%.2f'|format(c.proposed_premium or 0) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">No coverage lines yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if quote.quote_status not in ('Converted', 'Rejected', 'Expired') %}
+    <h3>Add coverage</h3>
+    <form class="inline" method="post" action="{{ url_for('quotes.add_coverage', quote_id=quote.quote_id) }}">
+      <div class="field"><label for="cn">Coverage name</label>
+        <input type="text" id="cn" name="coverage_name" required></div>
+      <div class="field"><label for="cl">Limit</label>
+        <input type="number" step="0.01" min="0" id="cl" name="coverage_limit" value="100000"></div>
+      <div class="field"><label for="dd">Deductible</label>
+        <input type="number" step="0.01" min="0" id="dd" name="deductible" value="1000"></div>
+      <div class="field"><label>&nbsp;</label><button type="submit">Add</button></div>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Workflow actions</h3>
+  <div class="grid cols-2">
+    <div>
+      {% if allowed %}
+      <form class="inline" method="post" action="{{ url_for('quotes.transition', quote_id=quote.quote_id) }}">
+        <div class="field"><label for="ns">Move to</label>
+          <select id="ns" name="new_status">
+            {% for s in allowed %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="ta">Changed by</label>
+          <input type="text" id="ta" name="actor" value="agent.demo" required></div>
+        <div class="field"><label for="tr">Reason</label>
+          <input type="text" id="tr" name="reason" value=""></div>
+        <div class="field"><label>&nbsp;</label><button type="submit">Apply transition</button></div>
+      </form>
+      <p class="small muted">
+        Permitted from {{ quote.quote_status }}: {{ allowed|join(', ') }}.
+        The quote row and its history row are written in one transaction.
+      </p>
+      {% else %}
+      <p class="muted">{{ quote.quote_status }} is a terminal state. No further transitions are permitted.</p>
+      {% endif %}
+    </div>
+
+    <div>
+      {% if quote.quote_status in ('Rated', 'Presented') and not quote.authorized_payment %}
+      <form class="inline" method="post" action="{{ url_for('quotes.payment', quote_id=quote.quote_id) }}">
+        <div class="field"><label for="pm">Payment method</label>
+          <select id="pm" name="method">
+            <option>Card</option><option>ACH</option><option>Invoice</option><option>Payroll</option>
+          </select></div>
+        <div class="field"><label for="pa">Amount</label>
+          <input type="number" step="0.01" min="0" id="pa" name="amount"
+                 value="{{ '%.2f'|format(quote.estimated_premium or 0) }}"></div>
+        <div class="field"><label for="pu">Authorized by</label>
+          <input type="text" id="pu" name="actor" value="agent.demo"></div>
+        <div class="field"><label>&nbsp;</label><button type="submit">Authorize payment</button></div>
+      </form>
+      <p class="small muted">Stores an authorisation reference only. No card number,
+        bank account, or cardholder name is captured.</p>
+      {% endif %}
+
+      {% if quote.quote_status == 'Accepted' and not conversion %}
+      <form class="inline" method="post" action="{{ url_for('quotes.issue', quote_id=quote.quote_id) }}">
+        <div class="field"><label for="ia">Issued by</label>
+          <input type="text" id="ia" name="actor" value="agent.demo" required></div>
+        <div class="field"><label>&nbsp;</label><button type="submit">Issue policy</button></div>
+      </form>
+      <p class="small muted">Creates CONTRACT, CONTRACT_BENEFIT, CONTRACT_PREMIUM,
+        and QUOTE_CONVERSION in one transaction. A second attempt is rejected.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Regional research context</h3>
+  <div class="notice">
+    <strong>Research context — not a rating input.</strong> {{ disclaimer }}
+    {% if run %}
+      Model provenance: ML_RUN {{ run.ml_run_id }}, {{ run.model_name }} {{ run.model_version }}.
+    {% endif %}
+  </div>
+
+  {% if context %}
+  <table>
+    <thead>
+      <tr><th>Indicator</th><th>Category</th><th class="num">Value</th><th>Year</th>
+          <th>County</th><th>Source</th><th>Approved ML theme</th></tr>
+    </thead>
+    <tbody>
+      {% for r in context %}
+      <tr>
+        <td>{{ r.indicator_name }}</td>
+        <td class="small muted">{{ r.factor_category or r.disease_category or '—' }}</td>
+        <td class="num">{{ '%.2f'|format(r.measure_value or 0) }}{% if r.unit %} <span class="small muted">{{ r.unit }}</span>{% endif %}</td>
+        <td>{{ r.observation_year or '—' }}</td>
+        <td class="small">{{ r.geography_name or '—' }}<div class="mono small muted">FIPS {{ r.county_fips or '—' }}</div></td>
+        <td class="small mono">{{ r.source_dataset_id or '—' }}</td>
+        <td>
+          {% if r.approved_theme %}
+            <span class="tag research">approved insight</span>
+            <div class="small">{{ r.approved_theme }}</div>
+            <div class="small muted">cluster {{ r.theme_cluster_id }} of run {{ r.theme_run_id }}, approved by {{ r.theme_approved_by }}</div>
+          {% else %}
+            <span class="small muted">no approved theme</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <form class="inline" method="post" action="{{ url_for('quotes.record_context', quote_id=quote.quote_id) }}" style="margin-top:10px">
+    <button type="submit" class="secondary">Record that this context was reviewed</button>
+  </form>
+  {% else %}
+  <p class="muted">No regional profile is available for this account.</p>
+  {% endif %}
+</div>
+
+<div class="grid cols-2">
+  <div class="panel">
+    <h3>Status history</h3>
+    <table>
+      <thead><tr><th>From</th><th>To</th><th>When</th><th>By</th><th>Reason</th></tr></thead>
+      <tbody>
+        {% for h in quote.status_history %}
+        <tr>
+          <td>{{ h.previous_status or '—' }}</td>
+          <td><span class="tag {{ h.new_status|lower }}">{{ h.new_status }}</span></td>
+          <td class="small">{{ h.changed_at.strftime('%Y-%m-%d %H:%M:%S') if h.changed_at }}</td>
+          <td class="small">{{ h.changed_by }}</td>
+          <td class="small muted">{{ h.reason or '' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3>Recorded risk factors</h3>
+    <table>
+      <thead><tr><th>Type</th><th>Source type</th><th>Value</th><th>Review</th></tr></thead>
+      <tbody>
+        {% for f in quote.risk_factors %}
+        <tr>
+          <td class="small">{{ f.risk_factor_type }}</td>
+          <td><span class="tag research">{{ f.source_type }}</span></td>
+          <td class="small">{{ f.factor_value }}<div class="mono small muted">{{ f.source_reference }}</div></td>
+          <td class="small">{{ f.review_status }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">None recorded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="small muted">SourceType <span class="mono">RegionalAggregate</span> refers to
+      county-level public data only. These rows are an audit record of what was
+      consulted; nothing in the pricing path reads them.</p>
+  </div>
+</div>
+
+{% endblock %}

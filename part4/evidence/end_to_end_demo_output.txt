@@ -1,0 +1,48 @@
+2026-08-12 17:32:19,589 INFO    [part4.quote] Created quote Q4-20260812-56D44A for customer 1
+2026-08-12 17:32:19,608 INFO    [part4.quote] Quote Q4-20260812-56D44A Draft -> Submitted by part4.demo
+2026-08-12 17:32:19,609 INFO    [part4.quote] Quote Q4-20260812-56D44A Submitted -> Rated by part4.demo
+2026-08-12 17:32:19,610 INFO    [part4.quote] Quote Q4-20260812-56D44A Rated -> Presented by part4.demo
+2026-08-12 17:32:19,618 INFO    [part4.quote] Authorized AUTH-A97EDA405847 on quote Q4-20260812-56D44A by part4.demo
+2026-08-12 17:32:19,622 INFO    [part4.quote] Quote Q4-20260812-56D44A Presented -> Accepted by part4.demo
+2026-08-12 17:32:19,641 INFO    [part4.policy] Issued contract POL-20260812-BF6DEB from quote Q4-20260812-56D44A (2 coverages)
+2026-08-12 17:32:19,671 INFO    [part4.monitor] No change. Checksum 1d2e55927cd5bab4... matches asset version v4. No retraining.
+==========================================================================
+Part IV end-to-end demonstration
+==========================================================================
+OK [01] Database available
+       PostgreSQL 16.14 (Debian 16.14-1.pgdg13+1) / part3
+OK [02] Application schema present
+       200 customers, 50 accounts, 390 contracts
+OK [03] Quote created
+       Q4-20260812-56D44A (QuoteID 458) in Draft
+OK [04] Coverage added
+       2 coverage lines, estimated premium 2200.00 (demonstration rule, not a filed rate)
+OK [05] Quote submitted, rated, presented
+       Draft -> Submitted -> Rated -> Presented, each with a history row
+OK [06] Invalid transition rejected
+       Cannot move a Presented quote to Draft. Allowed from Presented: Accepted, Expired, Rejected.
+OK [07] Payment authorized
+       AUTH-A97EDA405847, amount 2200.00. Reference only; no cardholder data stored.
+OK [08] Quote accepted
+       Presented -> Accepted
+OK [09] Policy issued from quote
+       POL-20260812-BF6DEB (ContractID 1199) in one transaction
+OK [10] Contract rows verified
+       2 benefits, 2 premiums, 1 conversion row, quote status Converted
+OK [11] Duplicate conversion prevented
+       Quote Q4-20260812-56D44A has already been converted to a policy.
+OK [12] Regional research context retrieved
+       5 county-level indicators for account 1. Regional aggregate research context. Not used to determine individual eligibility or premium.
+OK [13] Active ML model read
+       ML_RUN 29, ds010_theme_discovery 1.3.0, Partially reviewed (1/6)
+OK [14] Approved insight retrieved
+       1 approved indicator theme(s) surfaced: Cholesterol screening among adults -> Passages in this cluster discuss county-level economic and housing conditions reported alongside health outcomes. Used as regional research context for portfolio review only.
+OK [15] Source-change check executed
+       No change. Checksum 1d2e55927cd5bab4... matches asset version v4. No retraining.
+OK [16] Governance checks
+       No unreviewed cluster is exposed as approved insight. Demonstration premium for a 500000/2500 line is 2000.00 and is computed from those two inputs only.
+==========================================================================
+16/16 steps passed
+Quote  : Q4-20260812-56D44A  (/quotes/458)
+Policy : POL-20260812-BF6DEB  (/policies/1199)
+==========================================================================

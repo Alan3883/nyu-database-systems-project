@@ -1,0 +1,76 @@
+---
+title: Part III End-to-End Data Flow
+---
+flowchart TD
+    A1["Public source download<br/><i>download_part2_data.py</i>"]
+    A2["raw/ zone<br/>10 files, SHA-256 recorded<br/><b>never modified</b>"]
+    A3["Profiling and quality checks<br/><i>01_inventory, 02_profile</i>"]
+    A4["processed/ zone<br/>standardized columns"]
+    A5["curated/ zone<br/>5 tables matching hybrid entities"]
+    A6["metadata/ zone<br/>catalog, dictionary, quality, lineage"]
+
+    A1 --> A2 --> A3 --> A4 --> A5
+    A3 --> A6
+
+    B1["DS010 PDF<br/>18 pages"]
+    B2["Checksum verified<br/>against manifest"]
+    B3["Text extraction<br/>18/18 pages, headers stripped"]
+    B4["Paragraph chunking<br/>32 chunks, page numbers kept"]
+    B5["TF-IDF<br/>520 terms, 1-2 grams"]
+    B6["K selection<br/>size floor then silhouette"]
+    B7["K-means K=6<br/>seed 42"]
+    B8["Cluster evidence<br/>top terms, representatives"]
+
+    A2 -->|unstructured| B1 --> B2 --> B3 --> B4 --> B5 --> B6 --> B7 --> B8
+
+    C1["PostgreSQL 16 — part3"]
+    C2["26 Part II tables"]
+    C3["DOCUMENT_CHUNK<br/>32 rows, FK to DATA_ASSET"]
+    C4["ML_RUN / ML_CLUSTER_RESULT<br/>ML_CLUSTER_SUMMARY"]
+    C5["MV_ACCOUNT_REGIONAL_HEALTH_PROFILE"]
+    C6["QUOTE workflow tables"]
+
+    A5 -->|load| C2
+    B4 --> C3
+    B7 --> C4
+    C2 --> C5
+    C1 -.- C2
+    C1 -.- C6
+
+    D1["GCS part3/ prefix"]
+    D2["BigQuery dataset"]
+    D3["3 analytical queries"]
+    D4["Results exported to CSV"]
+
+    A5 --> D1
+    A6 --> D1
+    B8 --> D1
+    D1 --> D2 --> D3 --> D4
+
+    E1["Regional portfolio review"]
+    E2["Product research"]
+    E3["Human review gate<br/><b>HumanReviewed = TRUE required</b>"]
+    E4["Approved business use"]
+
+    C5 --> E1
+    B8 --> E3
+    D4 --> E1
+    E1 --> E3 --> E2
+    E3 --> E4
+
+    X1["BLOCKED BY DESIGN:<br/>no patient-level record,<br/>no customer-level scoring,<br/>no pricing use"]
+    E3 -.->|prohibited| X1
+
+    classDef lake fill:#E8F1FB,stroke:#3B76C4,color:#12325c
+    classDef ml fill:#FFF3E0,stroke:#E08A2B,color:#5c3a0e
+    classDef db fill:#F1EBFA,stroke:#7E57C2,color:#2f1c56
+    classDef cloud fill:#E6F4FA,stroke:#2196A6,color:#0c3d45
+    classDef biz fill:#E9F7EC,stroke:#3E9B4F,color:#14401f
+    classDef block fill:#FFE5E5,stroke:#CC3333,color:#7a0000
+
+    class A1,A2,A3,A4,A5,A6 lake
+    class B1,B2,B3,B4,B5,B6,B7,B8 ml
+    class C1,C2,C3,C4,C5,C6 db
+    class D1,D2,D3,D4 cloud
+    class E1,E2,E3,E4 biz
+    class X1 block

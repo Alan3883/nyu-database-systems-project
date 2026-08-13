@@ -1,0 +1,65 @@
+---
+title: Part IV - governed ML-to-ODS integration
+---
+flowchart TB
+    subgraph MODEL["MODEL OUTPUT - not business insight"]
+        direction LR
+        C1["ML_RUN<br/><i>version, seed, config, metrics</i>"]
+        C2["DOCUMENT_CHUNK<br/><i>text + checksum + page</i>"]
+        C3["ML_CLUSTER_RESULT<br/><i>chunk to cluster</i>"]
+        C4["ML_CLUSTER_SUMMARY<br/><i>label, top terms, passages</i><br/>HumanReviewed = FALSE"]
+    end
+
+    subgraph REVIEW["ANALYST INTERPRETATION"]
+        direction LR
+        R1["Read top terms and<br/>representative passages"]
+        R2["Write a business interpretation"]
+        R3["HumanReviewed = TRUE<br/>ReviewedBy + ReviewedAt<br/><i>gate 1</i>"]
+    end
+
+    subgraph APPROVED["APPROVED INSIGHT"]
+        direction LR
+        K1["ML_CLUSTER_INDICATOR_MAP<br/>ApprovedBy, ApprovedAt<br/>IsActive = TRUE<br/><i>gate 2</i>"]
+    end
+
+    subgraph ODSDATA["STRUCTURED ODS DATA"]
+        direction LR
+        D1[HEALTH_INDICATOR]
+        D2["HEALTH_OBSERVATION<br/><i>county aggregates</i>"]
+        D3[GEOGRAPHIC_AREA]
+        D4[ACCOUNT_GEOGRAPHY]
+        D5[ACCOUNT]
+        D6["MV_ACCOUNT_REGIONAL_HEALTH_PROFILE"]
+    end
+
+    subgraph USE["BUSINESS CONTEXT"]
+        direction LR
+        U1["Quote page:<br/>regional research context"]
+        U2["Portfolio research"]
+        U3["QUOTE_RISK_FACTOR<br/>SourceType = RegionalAggregate<br/><i>audit record only</i>"]
+    end
+
+    BLOCK["Premium and eligibility<br/>NEVER read any of the above"]
+
+    C1 --> C4
+    C2 --> C3 --> C4
+    C4 --> R1 --> R2 --> R3
+    R3 --> K1
+    K1 --> D1
+    D1 --> D2 --> D3 --> D4 --> D5
+    D2 --> D6
+    D5 --> D6
+    D6 --> U1
+    D6 --> U2
+    K1 --> U1
+    U1 --> U3
+
+    U1 -. blocked .-> BLOCK
+    K1 -. blocked .-> BLOCK
+
+    classDef raw fill:#fdf1dc,stroke:#8a5a00,color:#5a3b00
+    classDef gate fill:#f0eaf9,stroke:#5b3d8c,color:#3d2a60
+    classDef blocked fill:#fbe9e9,stroke:#a32020,color:#7d1a1a
+    class C1,C2,C3,C4 raw
+    class R3,K1 gate
+    class BLOCK blocked

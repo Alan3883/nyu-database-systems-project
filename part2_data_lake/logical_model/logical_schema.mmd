@@ -1,0 +1,282 @@
+erDiagram
+    %% ================= ACCOUNT SUBJECT AREA =================
+    ACCOUNT ||--o{ ACCOUNT_ALIAS : "is consolidated from"
+    ACCOUNT ||--o{ ACCOUNT_BILLING_ACCOUNT : "is billed through"
+    BILLING_ACCOUNT ||--o{ ACCOUNT_BILLING_ACCOUNT : "serves"
+    ACCOUNT ||--o{ ACCOUNT_ADMIN_ASSIGNMENT : "is administered via"
+    ACCOUNT_ADMIN ||--o{ ACCOUNT_ADMIN_ASSIGNMENT : "is assigned via"
+    ACCOUNT ||--o{ ACCOUNT_RELATIONSHIP : "is master in"
+    ACCOUNT ||--o{ ACCOUNT_RELATIONSHIP : "is member in"
+    ACCOUNT ||--o{ ACCOUNT_MEMBER : "employs via"
+    CUSTOMER ||--o{ ACCOUNT_MEMBER : "is employed via"
+
+    %% ================= ASSOCIATE SUBJECT AREA =================
+    ACCOUNT ||--o{ ACCOUNT_MANAGER_CONTRACT : "is serviced via"
+    MANAGER_CONTRACT ||--o{ ACCOUNT_MANAGER_CONTRACT : "services via"
+    ASSOCIATE ||--o{ MANAGER_CONTRACT : "holds"
+    ASSOCIATE ||--o{ ASSOCIATE_RELATIONSHIP : "is primary in"
+    ASSOCIATE ||--o{ ASSOCIATE_RELATIONSHIP : "is related in"
+    ASSOCIATE ||--o{ CUSTOMER_ASSOCIATE_ROLE : "is linked via"
+    CUSTOMER ||--o{ CUSTOMER_ASSOCIATE_ROLE : "is linked via"
+
+    %% ================= CUSTOMER SUBJECT AREA =================
+    CUSTOMER ||--o{ CUSTOMER_RELATIONSHIP : "is primary in"
+    CUSTOMER ||--o{ CUSTOMER_RELATIONSHIP : "is related in"
+    CUSTOMER ||--o{ CUSTOMER_CONTRACT_ROLE : "plays role via"
+    CONTRACT ||--o{ CUSTOMER_CONTRACT_ROLE : "has role via"
+    CUSTOMER ||--o{ CUSTOMER_BENEFIT_ROLE : "plays role via"
+    CONTRACT_BENEFIT ||--o{ CUSTOMER_BENEFIT_ROLE : "has role via"
+
+    %% ================= CONTRACT SUBJECT AREA =================
+    ACCOUNT ||--o{ CONTRACT : "sponsors"
+    CONTRACT ||--|{ CONTRACT_BENEFIT : "contains"
+    CONTRACT_BENEFIT ||--|{ CONTRACT_PREMIUM : "is priced by"
+    MANAGER_CONTRACT ||--o{ CONTRACT_PREMIUM : "earns credit for"
+
+    %% ================= HYBRID DATA EXTENSION =================
+    DATASET ||--o{ DATA_ASSET : "has file"
+    DATASET ||--o{ HEALTH_OBSERVATION : "provides"
+    GEOGRAPHIC_AREA ||--o{ HEALTH_OBSERVATION : "measured in"
+    HEALTH_INDICATOR ||--o{ HEALTH_OBSERVATION : "described by"
+    GEOGRAPHIC_AREA ||--o{ GEOGRAPHIC_AREA : "is parent of"
+    ACCOUNT ||--o{ ACCOUNT_GEOGRAPHY : "is located via"
+    GEOGRAPHIC_AREA ||--o{ ACCOUNT_GEOGRAPHY : "locates via"
+
+    ACCOUNT {
+        int AccountID PK
+        string AccountName
+        string CompanyCode
+        string Address1
+        string City
+        string State
+        string Zip
+        string AccountType
+        string Status
+        date StartDate
+        date EndDate
+    }
+    ACCOUNT_ALIAS {
+        int AliasID PK
+        int AccountID FK
+        string SourceSystem
+        string SourceRecordID
+        string AliasName
+        string AliasAddress
+        string DuplicateFlag
+        date DateReceived
+    }
+    BILLING_ACCOUNT {
+        int BillingAccountID PK
+        string BillingName
+        string BillingAddress1
+        string BillingCity
+        string BillingState
+        string BillingZip
+        string Status
+    }
+    ACCOUNT_BILLING_ACCOUNT {
+        int AccountID PK,FK
+        int BillingAccountID PK,FK
+        string ProductLine PK
+        string EmployeeClass
+        string RelationshipType
+        date StartDate
+        date EndDate
+    }
+    ACCOUNT_ADMIN {
+        int AdminID PK
+        string AdminName
+        string Phone
+        string EmailAddress
+        string Specialty
+    }
+    ACCOUNT_ADMIN_ASSIGNMENT {
+        int AccountID PK,FK
+        int AdminID PK,FK
+        string ProductLine PK
+        string RoleType
+        date StartDate
+        date EndDate
+    }
+    ACCOUNT_RELATIONSHIP {
+        int MasterAccountID PK,FK
+        int MemberAccountID PK,FK
+        string RelationshipType PK
+        date StartDate
+        date EndDate
+    }
+    CUSTOMER {
+        int CustomerID PK
+        string CustLastName
+        string CustFirstName
+        date CustDOB
+        string CustomerType
+        string SSN_TIN
+        string Status
+    }
+    ACCOUNT_MEMBER {
+        int AccountID PK,FK
+        int CustomerID PK,FK
+        date StartDate PK
+        string EmploymentType
+        string Status
+        date EndDate
+    }
+    ASSOCIATE {
+        int AssociateID PK
+        string AssocLastName
+        string AssocFirstName
+        date AssocDOB
+        date TenureDate
+        string Status
+    }
+    MANAGER_CONTRACT {
+        int ManagerContractID PK
+        int AssociateID FK
+        string WritingNumber
+        string SitCode
+        string PrimarySitCodeFlag
+        string CommissionChainCode
+        string ProductionCreditRegion
+        date IssueDate
+        string Status
+    }
+    ACCOUNT_MANAGER_CONTRACT {
+        int AccountID PK,FK
+        int ManagerContractID PK,FK
+        string RoleType PK
+        date StartDate
+        date EndDate
+    }
+    ASSOCIATE_RELATIONSHIP {
+        int AssociateID PK,FK
+        int RelatedAssociateID PK,FK
+        string RelationshipType PK
+        date StartDate
+        date EndDate
+    }
+    CONTRACT {
+        int ContractID PK
+        string ContractNumber
+        int AccountID FK
+        string LineOfBusiness
+        string PlanName
+        string Status
+        date EffectiveDate
+        date EndDate
+    }
+    CONTRACT_BENEFIT {
+        int BenefitID PK
+        int ContractID FK
+        string BenefitName
+        string BenefitType
+        date EffectiveDate
+        date EndDate
+    }
+    CONTRACT_PREMIUM {
+        int PremiumID PK
+        int BenefitID FK
+        int ManagerContractID FK
+        decimal AnnualizedPremium
+        int YearNumber
+        date EffectiveDate
+        date EndDate
+    }
+    CUSTOMER_RELATIONSHIP {
+        int CustomerID PK,FK
+        int RelatedCustomerID PK,FK
+        string RelationshipType PK
+        date StartDate
+        date EndDate
+    }
+    CUSTOMER_CONTRACT_ROLE {
+        int CustomerID PK,FK
+        int ContractID PK,FK
+        string RoleType PK
+        date StartDate
+        date EndDate
+    }
+    CUSTOMER_BENEFIT_ROLE {
+        int CustomerID PK,FK
+        int BenefitID PK,FK
+        string RoleType PK
+        date StartDate
+        date EndDate
+    }
+    CUSTOMER_ASSOCIATE_ROLE {
+        int CustomerID PK,FK
+        int AssociateID PK,FK
+        string RoleType PK
+        date StartDate
+        date EndDate
+    }
+    DATASET {
+        string DatasetID PK
+        string DatasetName
+        string SourceOrganization
+        string SourceURL
+        string DataClassification
+        string GeographicLevel
+        string TimePeriod
+        string UpdateFrequency
+        string LicenseText
+        string StorageZone
+        date IngestionDate
+        string Status
+    }
+    DATA_ASSET {
+        int AssetID PK
+        string DatasetID FK
+        string FileName
+        string RelativePath
+        string CloudURI
+        string FileFormat
+        string AssetType
+        bigint FileSizeBytes
+        int RowCount
+        int ColumnCount
+        string SHA256
+        string SchemaVersion
+        date IngestionDate
+        string Status
+    }
+    GEOGRAPHIC_AREA {
+        int GeographyID PK
+        int ParentGeographyID FK
+        string GeographyType
+        string GeographyName
+        string StateCode
+        string CountyFIPS
+        string ZCTA
+        string CountryCode
+    }
+    HEALTH_INDICATOR {
+        int IndicatorID PK
+        string IndicatorCode
+        string IndicatorName
+        string DiseaseCategory
+        string FactorCategory
+        string Unit
+        string Description
+    }
+    HEALTH_OBSERVATION {
+        int ObservationID PK
+        string DatasetID FK
+        int GeographyID FK
+        int IndicatorID FK
+        int ObservationYear
+        string PopulationGroup
+        string StratificationType
+        string StratificationValue
+        decimal MeasureValue
+        decimal LowerConfidenceLimit
+        decimal UpperConfidenceLimit
+        string Notes
+    }
+    ACCOUNT_GEOGRAPHY {
+        int AccountID PK,FK
+        int GeographyID PK,FK
+        string RelationshipType PK
+        date StartDate
+        date EndDate
+    }

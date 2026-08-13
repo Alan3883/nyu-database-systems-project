@@ -1,0 +1,5 @@
+gcloud storage buckets create gs://<GCP_PROJECT> --project <GCP_PROJECT> --location us-east1 --uniform-bucket-level-access
+gcloud storage cp -r /Users/alan/Downloads/part2_data_lake/metadata gs://<GCP_PROJECT>/
+gcloud storage cp -r /Users/alan/Downloads/part2_data_lake/curated gs://<GCP_PROJECT>/
+gcloud storage cp -r /Users/alan/Downloads/part2_data_lake/sample_data gs://<GCP_PROJECT>/
+gcloud storage ls -l -r gs://<GCP_PROJECT>/**

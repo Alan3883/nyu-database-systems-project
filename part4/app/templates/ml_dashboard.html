@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}ML pipeline{% endblock %}
+{% block content %}
+
+<h2>ML and data pipeline</h2>
+
+<div class="grid cols-2">
+  <div class="panel">
+    <h3>Active model</h3>
+    {% if run %}
+    <dl class="kv">
+      <dt>ML_RUN</dt><dd><a href="{{ url_for('ml_admin.run_review', ml_run_id=run.ml_run_id) }}">{{ run.ml_run_id }}</a></dd>
+      <dt>Model</dt><dd>{{ run.model_name }} <strong>{{ run.model_version }}</strong></dd>
+      <dt>Algorithm</dt><dd class="mono">{{ run.algorithm }}</dd>
+      <dt>Random seed</dt><dd>{{ run.random_seed }}</dd>
+      <dt>Training dataset</dt><dd class="mono">{{ run.training_dataset_id }}</dd>
+      <dt>Started</dt><dd class="small mono">{{ run.started_at.strftime('%Y-%m-%d %H:%M:%S %Z') if run.started_at }}</dd>
+      <dt>Completed</dt><dd class="small mono">{{ run.completed_at.strftime('%Y-%m-%d %H:%M:%S %Z') if run.completed_at }}</dd>
+      <dt>Status</dt><dd><span class="tag ok">{{ run.status }}</span></dd>
+      {% set m = run.metrics_json or {} %}
+      <dt>Clusters (K)</dt><dd>{{ m.get('selected_k', '—') }}</dd>
+      <dt>Silhouette</dt><dd>{{ m.get('silhouette_score', '—') }}</dd>
+      <dt>Davies-Bouldin</dt><dd>{{ m.get('davies_bouldin_score', '—') }}</dd>
+      <dt>Chunks</dt><dd>{{ m.get('n_chunks', '—') }}</dd>
+      <dt>Vocabulary</dt><dd>{{ m.get('vocabulary_size', '—') }}</dd>
+      <dt>Cluster sizes</dt><dd class="mono small">{{ m.get('cluster_sizes', []) }}</dd>
+      <dt>Source checksum</dt><dd class="mono small">{{ (m.get('source_sha256') or '—')[:32] }}…</dd>
+      <dt>Artifacts</dt><dd class="mono small">{{ m.get('artifact_dir', 'ml/models (Part III run)') }}</dd>
+    </dl>
+    {% else %}
+    <p class="muted">No completed model run.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h3>Unstructured source monitor</h3>
+    <dl class="kv">
+      <dt>Watched file</dt><dd class="mono small">{{ watch_path }}</dd>
+      <dt>Detection method</dt><dd>SHA-256 content hash, compared with DATA_ASSET.SHA256</dd>
+      <dt>Current state</dt>
+      <dd>
+        {% if state %}
+          {% if state.changed %}<span class="tag warn">changed</span>
+          {% else %}<span class="tag ok">unchanged</span>{% endif %}
+          <div class="small muted">{{ state.message }}</div>
+          <div class="mono small muted">recorded {{ state.short_recorded }}…</div>
+          <div class="mono small muted">current  {{ state.short_current }}…</div>
+        {% else %}<span class="tag bad">unavailable</span><div class="small muted">{{ error }}</div>{% endif %}
+      </dd>
+      <dt>Review status</dt>
+      <dd>
+        {% if review.is_complete %}<span class="tag ok">{{ review.label }}</span>
+        {% elif review.reviewed_clusters %}<span class="tag warn">{{ review.label }}</span>
+        {% else %}<span class="tag bad">{{ review.label }}</span>{% endif %}
+        <div class="small muted">{{ review.approved_mappings }} active indicator mapping(s)</div>
+      </dd>
+      <dt>Model registry</dt><dd class="mono small">{{ registry }}</dd>
+    </dl>
+
+    <form method="post" action="{{ url_for('ml_admin.source_check') }}">
+      <button type="submit">Run source check now</button>
+    </form>
+    <p class="small muted">
+      The web action compares checksums only. Retraining runs from the command
+      line — <span class="mono">python3 -m part4.jobs.monitor_unstructured --once</span>
+      — so a page reload can never start a training run.
+    </p>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Model run history</h3>
+  <table>
+    <thead><tr><th>Run</th><th>Version</th><th>Algorithm</th><th>Started</th>
+      <th>Completed</th><th>Status</th><th class="num">K</th><th>Source asset</th></tr></thead>
+    <tbody>
+      {% for r in runs %}
+      {% set m = r.metrics_json or {} %}
+      <tr>
+        <td><a href="{{ url_for('ml_admin.run_review', ml_run_id=r.ml_run_id) }}">{{ r.ml_run_id }}</a>
+          {% if run and r.ml_run_id == run.ml_run_id %}<span class="tag ok">active</span>{% endif %}</td>
+        <td>{{ r.model_version }}</td>
+        <td class="mono small">{{ r.algorithm }}</td>
+        <td class="small mono">{{ r.started_at.strftime('%Y-%m-%d %H:%M') if r.started_at }}</td>
+        <td class="small mono">{{ r.completed_at.strftime('%Y-%m-%d %H:%M') if r.completed_at else '—' }}</td>
+        <td>
+          {% if r.status == 'Completed' %}<span class="tag ok">Completed</span>
+          {% elif r.status == 'Failed' %}<span class="tag bad">Failed</span>
+          {% else %}<span class="tag warn">{{ r.status }}</span>{% endif %}
+        </td>
+        <td class="num">{{ m.get('selected_k', '—') }}</td>
+        <td class="small">{{ m.get('source_asset_version', '—') }}
+          {% if m.get('error') %}<div class="small muted">{{ m.get('error')[:80] }}</div>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="small muted">
+    The active model is the completed run with the latest completion time. A
+    failed run is recorded and can never become active, so a broken retraining
+    leaves the previous model serving.
+  </p>
+</div>
+
+<div class="panel">
+  <h3>Preserved source versions</h3>
+  <table>
+    <thead><tr><th>Asset</th><th>Version</th><th>File</th><th class="num">Bytes</th>
+      <th>SHA-256</th><th>Ingested</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for a in assets %}
+      <tr>
+        <td>{{ a.asset_id }}</td>
+        <td><strong>{{ a.schema_version or 'v1' }}</strong></td>
+        <td class="mono small">{{ a.relative_path }}</td>
+        <td class="num">{{ '{:,}'.format(a.file_size_bytes or 0) }}</td>
+        <td class="mono small">{{ (a.sha256 or '')[:24] }}…</td>
+        <td class="small">{{ a.ingestion_date or '—' }}</td>
+        <td>{% if a.status == 'Stored' %}<span class="tag ok">Stored</span>
+            {% else %}<span class="tag">{{ a.status }}</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="small muted">Raw versions are immutable. A superseded file is kept on
+    disk and its catalogue row is retained, so every model run can be traced to
+    the exact bytes it was trained on.</p>
+</div>
+
+{% endblock %}

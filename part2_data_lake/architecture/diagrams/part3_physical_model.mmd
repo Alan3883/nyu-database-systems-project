@@ -1,0 +1,255 @@
+---
+title: Part III Physical Model — Part III tables (new) and the Part II tables they reference
+---
+erDiagram
+    ACCOUNT ||--o{ CONTRACT : has
+    CONTRACT ||--o{ CONTRACT_BENEFIT : has
+    DATASET ||--o{ DATA_ASSET : has
+    GEOGRAPHIC_AREA ||--o{ GEOGRAPHIC_AREA : has
+    DATASET ||--o{ HEALTH_OBSERVATION : has
+    GEOGRAPHIC_AREA ||--o{ HEALTH_OBSERVATION : has
+    HEALTH_INDICATOR ||--o{ HEALTH_OBSERVATION : has
+    ACCOUNT ||--o{ ACCOUNT_GEOGRAPHY : has
+    GEOGRAPHIC_AREA ||--o{ ACCOUNT_GEOGRAPHY : has
+    CUSTOMER ||--o{ QUOTE : has
+    ACCOUNT ||--o{ QUOTE : has
+    ASSOCIATE ||--o{ QUOTE : has
+    QUOTE ||--o{ QUOTE_COVERAGE : has
+    CONTRACT_BENEFIT ||--o{ QUOTE_COVERAGE : has
+    QUOTE ||--o{ QUOTE_RISK_FACTOR : has
+    QUOTE ||--o{ QUOTE_STATUS_HISTORY : has
+    QUOTE ||--o{ PAYMENT_AUTHORIZATION : has
+    QUOTE ||--o{ QUOTE_CONVERSION : has
+    CONTRACT ||--o{ QUOTE_CONVERSION : has
+    DATASET ||--o{ ML_RUN : has
+    DATA_ASSET ||--o{ DOCUMENT_CHUNK : has
+    ML_RUN ||--o{ ML_CLUSTER_RESULT : has
+    DOCUMENT_CHUNK ||--o{ ML_CLUSTER_RESULT : has
+    ML_RUN ||--o{ ML_CLUSTER_SUMMARY : has
+    QUOTE {
+        bigint quoteid PK
+        varchar(50) quotenumber
+        int customerid FK
+        int accountid FK
+        int associateid FK
+        varchar(20) productline
+        varchar(20) quotestatus
+        date requesteddate
+        date effectivedate
+        date expirationdate
+        numeric estimatedpremium
+        timestamptz createdat
+        timestamptz updatedat
+    }
+    QUOTE_COVERAGE {
+        bigint quotecoverageid PK
+        bigint quoteid FK
+        int benefitid FK
+        varchar(100) coveragename
+        numeric coveragelimit
+        numeric deductible
+        numeric proposedpremium
+        timestamptz createdat
+    }
+    QUOTE_RISK_FACTOR {
+        bigint quoteriskfactorid PK
+        bigint quoteid FK
+        varchar(50) riskfactortype
+        varchar(30) sourcetype
+        varchar(200) sourcereference
+        varchar(200) factorvalue
+        varchar(20) reviewstatus
+        timestamptz createdat
+    }
+    QUOTE_STATUS_HISTORY {
+        bigint quotestatushistoryid PK
+        bigint quoteid FK
+        varchar(20) previousstatus
+        varchar(20) newstatus
+        timestamptz changedat
+        varchar(100) changedby
+        varchar(300) reason
+    }
+    PAYMENT_AUTHORIZATION {
+        bigint paymentauthorizationid PK
+        bigint quoteid FK
+        varchar(100) authorizationreference
+        varchar(30) paymentmethodtype
+        numeric authorizedamount
+        varchar(20) authorizationstatus
+        timestamptz authorizedat
+        timestamptz createdat
+    }
+    QUOTE_CONVERSION {
+        bigint quoteconversionid PK
+        bigint quoteid FK
+        int contractid FK
+        timestamptz convertedat
+        varchar(20) conversionstatus
+    }
+    ML_RUN {
+        bigint mlrunid PK
+        varchar(100) modelname
+        varchar(20) modelversion
+        varchar(50) algorithm
+        jsonb configurationjson
+        int randomseed
+        varchar(10) trainingdatasetid FK
+        timestamptz startedat
+        timestamptz completedat
+        varchar(20) status
+        jsonb metricsjson
+    }
+    DOCUMENT_CHUNK {
+        bigint documentchunkid PK
+        int dataassetid FK
+        int pagenumber
+        varchar(200) sectionname
+        text chunktext
+        int wordcount
+        char(64) chunkchecksum
+        timestamptz createdat
+    }
+    ML_CLUSTER_RESULT {
+        bigint mlrunid PK,FK
+        bigint documentchunkid PK,FK
+        int clusterid
+        numeric distancetocentroid
+        numeric relativescore
+        timestamptz createdat
+    }
+    ML_CLUSTER_SUMMARY {
+        bigint mlrunid PK,FK
+        int clusterid PK
+        varchar(200) clusterlabel
+        jsonb toptermsjson
+        jsonb representativechunksjson
+        text businessinterpretation
+        bool humanreviewed
+        timestamptz reviewedat
+        varchar(100) reviewedby
+    }
+    ACCOUNT {
+        int accountid PK
+        varchar(200) accountname
+        varchar(20) companycode
+        varchar(200) address1
+        varchar(100) city
+        varchar(2) state
+        varchar(10) zip
+        varchar(30) accounttype
+        varchar(20) status
+        date startdate
+        date enddate
+        timestamptz createdat
+        timestamptz updatedat
+    }
+    CUSTOMER {
+        int customerid PK
+        varchar(100) custlastname
+        varchar(100) custfirstname
+        date custdob
+        varchar(20) customertype
+        varchar(20) ssn_tin
+        varchar(20) status
+        timestamptz createdat
+        timestamptz updatedat
+    }
+    ASSOCIATE {
+        int associateid PK
+        varchar(100) assoclastname
+        varchar(100) assocfirstname
+        date assocdob
+        date tenuredate
+        varchar(20) status
+    }
+    CONTRACT {
+        int contractid PK
+        varchar(50) contractnumber
+        int accountid FK
+        varchar(30) lineofbusiness
+        varchar(100) planname
+        varchar(20) status
+        date effectivedate
+        date enddate
+        timestamptz createdat
+        timestamptz updatedat
+    }
+    CONTRACT_BENEFIT {
+        int benefitid PK
+        int contractid FK
+        varchar(100) benefitname
+        varchar(30) benefittype
+        date effectivedate
+        date enddate
+    }
+    DATASET {
+        varchar(10) datasetid PK
+        varchar(200) datasetname
+        varchar(200) sourceorganization
+        varchar(500) sourceurl
+        varchar(50) dataclassification
+        varchar(50) geographiclevel
+        varchar(50) timeperiod
+        varchar(50) updatefrequency
+        varchar(200) licensetext
+        varchar(100) storagezone
+        date ingestiondate
+        varchar(20) status
+    }
+    DATA_ASSET {
+        int assetid PK
+        varchar(10) datasetid FK
+        varchar(200) filename
+        varchar(300) relativepath
+        varchar(1000) clouduri
+        varchar(20) fileformat
+        varchar(30) assettype
+        bigint filesizebytes
+        int rowcount
+        int columncount
+        char(64) sha256
+        varchar(20) schemaversion
+        date ingestiondate
+        varchar(20) status
+    }
+    GEOGRAPHIC_AREA {
+        int geographyid PK
+        int parentgeographyid FK
+        varchar(20) geographytype
+        varchar(150) geographyname
+        varchar(2) statecode
+        varchar(5) countyfips
+        varchar(5) zcta
+        varchar(2) countrycode
+    }
+    HEALTH_INDICATOR {
+        int indicatorid PK
+        varchar(30) indicatorcode
+        varchar(300) indicatorname
+        varchar(100) diseasecategory
+        varchar(100) factorcategory
+        varchar(30) unit
+        varchar(500) description
+    }
+    HEALTH_OBSERVATION {
+        int observationid PK
+        varchar(10) datasetid FK
+        int geographyid FK
+        int indicatorid FK
+        int observationyear
+        varchar(50) populationgroup
+        varchar(50) stratificationtype
+        varchar(50) stratificationvalue
+        numeric measurevalue
+        numeric lowerconfidencelimit
+        numeric upperconfidencelimit
+        varchar(200) notes
+    }
+    ACCOUNT_GEOGRAPHY {
+        int accountid PK,FK
+        int geographyid PK,FK
+        varchar(30) relationshiptype PK
+        date startdate
+        date enddate
+    }

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<h2>End-to-end status</h2>
+
+<div class="grid cols-4">
+  <div class="metric">
+    <div class="value">{{ counts.get('Open', 0) }}</div>
+    <div class="label">Open quotes</div>
+    <div class="note">Draft, Submitted, Rated, Presented</div>
+  </div>
+  <div class="metric">
+    <div class="value">{{ counts.get('Accepted', 0) }}</div>
+    <div class="label">Accepted quotes</div>
+    <div class="note">Awaiting policy issuance</div>
+  </div>
+  <div class="metric">
+    <div class="value">{{ policies_from_quotes }}</div>
+    <div class="label">Policies from quotes</div>
+    <div class="note">{{ contracts }} CONTRACT rows in total</div>
+  </div>
+  <div class="metric">
+    <div class="value">{{ counts.get('Converted', 0) }}</div>
+    <div class="label">Converted quotes</div>
+    <div class="note">{{ counts.get('Rejected', 0) }} rejected, {{ counts.get('Expired', 0) }} expired</div>
+  </div>
+</div>
+
+<div class="grid cols-2" style="margin-top:16px">
+
+  <div class="panel">
+    <h3>Data-driven pipeline</h3>
+    <dl class="kv">
+      <dt>Database</dt><dd><span class="tag ok">connected</span> <span class="mono small">{{ db_message }}</span></dd>
+
+      <dt>Active model run</dt>
+      <dd>
+        {% if run %}
+          <a href="{{ url_for('ml_admin.run_review', ml_run_id=run.ml_run_id) }}">ML_RUN {{ run.ml_run_id }}</a>
+          &middot; {{ run.model_name }} {{ run.model_version }}
+          &middot; <span class="mono small">{{ run.algorithm }}</span>
+        {% else %}
+          <span class="tag bad">none</span>
+        {% endif %}
+      </dd>
+
+      <dt>Completed at</dt>
+      <dd class="mono small">{{ run.completed_at.strftime('%Y-%m-%d %H:%M:%S %Z') if run and run.completed_at else '—' }}</dd>
+
+      <dt>Source asset version</dt>
+      <dd>
+        {% if asset %}
+          <strong>{{ asset.schema_version or 'v1' }}</strong> &middot; AssetID {{ asset.asset_id }}
+          <div class="mono small muted">{{ asset.relative_path }}</div>
+          <div class="mono small muted">sha256 {{ (asset.sha256 or '')[:32] }}…</div>
+        {% else %}—{% endif %}
+      </dd>
+
+      <dt>Source check</dt>
+      <dd>
+        {% if source_state %}
+          {% if source_state.changed %}
+            <span class="tag warn">changed</span>
+          {% else %}
+            <span class="tag ok">unchanged</span>
+          {% endif %}
+          <div class="small muted">{{ source_state.message }}</div>
+        {% else %}
+          <span class="tag bad">unavailable</span>
+          <div class="small muted">{{ source_error }}</div>
+        {% endif %}
+      </dd>
+
+      <dt>Model review status</dt>
+      <dd>
+        {% if review.is_complete %}
+          <span class="tag ok">{{ review.label }}</span>
+        {% elif review.reviewed_clusters %}
+          <span class="tag warn">{{ review.label }}</span>
+        {% else %}
+          <span class="tag bad">{{ review.label }}</span>
+        {% endif %}
+        <div class="small muted">
+          {{ review.reviewed_clusters }} of {{ review.total_clusters }} clusters reviewed,
+          {{ review.approved_mappings }} approved indicator mapping(s)
+        </div>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="panel">
+    <h3>Recent quotes</h3>
+    <table>
+      <thead><tr><th>Quote</th><th>Customer</th><th>Line</th><th class="num">Estimate</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for q in recent_quotes %}
+        <tr>
+          <td><a href="{{ url_for('quotes.quote_detail', quote_id=q.quote_id) }}">{{ q.quote_number }}</a></td>
+          <td>{{ q.customer.display_name }}</td>
+          <td>{{ q.product_line }}</td>
+          <td class="num">{{ '%.2f'|format(q.estimated_premium or 0) }}</td>
+          <td><span class="tag {{ q.quote_status|lower }}">{{ q.quote_status }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted">No quotes yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h3>Recent policies</h3>
+    <table>
+      <thead><tr><th>Contract</th><th>Line of business</th><th>Effective</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for c in recent_policies %}
+        <tr>
+          <td><a href="{{ url_for('policies.policy_detail', contract_id=c.contract_id) }}">{{ c.contract_number }}</a></td>
+          <td>{{ c.line_of_business or '—' }}</td>
+          <td>{{ c.effective_date or '—' }}</td>
+          <td><span class="tag accepted">{{ c.status }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">No contracts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="notice">
+  <strong>Governance.</strong> Machine-learning output on this system is decision
+  support for portfolio research. It does not determine eligibility, set a
+  premium, accept or reject a quote, or score an individual customer.
+</div>
+
+{% endblock %}

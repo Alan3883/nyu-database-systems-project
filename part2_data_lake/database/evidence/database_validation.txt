@@ -1,0 +1,287 @@
+PART III DATABASE VALIDATION
+Date: Wed Aug  5 21:41:40 EDT 2026
+PostgreSQL 16.14 (Debian 16.14-1.pgdg13+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+
+=== Physical design and Part II constraint tests ===
+
+--- Object inventory ---
+       object       |  n  
+--------------------+-----
+ base tables        |  48
+ check constraints  |  38
+ foreign keys       |  48
+ indexes            | 111
+ materialized views |   1
+ unique constraints |   8
+(6 rows)
+
+
+--- Part III indexes present ---
+         indexname          
+----------------------------
+ ix_acctgeo_geo_type
+ ix_asset_dataset_type
+ ix_chunk_asset_page
+ ix_contract_account_active
+ ix_conversion_contract
+ ix_customer_name
+ ix_geo_countyfips_partial
+ ix_mlcr_chunk
+ ix_mlcr_run_cluster
+ ix_mlrun_dataset_started
+ ix_obs_geo_ind_year
+ ix_obs_ind_geo_covering
+ ix_premium_mgr_year
+ ix_qsh_quote_time
+ ix_quote_customer_date
+ ix_quote_open_status
+(16 rows)
+
+
+--- Audit columns added ---
+ table_name | column_name |        data_type         
+------------+-------------+--------------------------
+ account    | createdat   | timestamp with time zone
+ account    | updatedat   | timestamp with time zone
+ contract   | createdat   | timestamp with time zone
+ contract   | updatedat   | timestamp with time zone
+ customer   | createdat   | timestamp with time zone
+ customer   | updatedat   | timestamp with time zone
+(6 rows)
+
+
+TEST P1: ACCOUNT business uniqueness must still be enforced
+  ^ expected: violates uq_account_business
+
+TEST P2: MANAGER_CONTRACT uniqueness must still be enforced
+psql:/tmp/p.sql:55: ERROR:  duplicate key value violates unique constraint "uq_account_business"
+DETAIL:  Key (accountname, address1, city, state, zip, companycode)=(Demo Account 7, 7 Main St, City7, AR, 70007, DEMO7) already exists.
+INSERT 0 0
+INSERT 0 0
+psql:/tmp/p.sql:65: ERROR:  duplicate key value violates unique constraint "uq_manager_contract"
+DETAIL:  Key (associateid, writingnumber, sitcode)=(9001, W-001, S-001) already exists.
+  ^ expected: violates uq_manager_contract
+
+TEST P3: StartDate after EndDate must be rejected
+psql:/tmp/p.sql:72: ERROR:  new row for relation "account" violates check constraint "ck_account_dates"
+DETAIL:  Failing row contains (99002, Bad Dates, BAD, null, null, null, null, Group, Active, 2025-12-01, 2025-01-01, 2026-08-06 01:41:40.830539+00, 2026-08-06 01:41:40.830539+00).
+  ^ expected: violates ck_account_dates
+
+TEST P4: self-referencing account relationship must be rejected
+psql:/tmp/p.sql:78: ERROR:  new row for relation "account_relationship" violates check constraint "ck_acct_rel_self"
+DETAIL:  Failing row contains (1, 1, Master, null, null).
+  ^ expected: violates ck_acct_rel_self
+
+TEST P5: self-referencing customer relationship must be rejected
+psql:/tmp/p.sql:84: ERROR:  new row for relation "customer_relationship" violates check constraint "ck_cust_rel_self"
+DETAIL:  Failing row contains (1, 1, Spouse, null, null).
+  ^ expected: violates ck_cust_rel_self
+
+TEST P6: observation year outside 1990-2026 must be rejected
+  ^ expected: violates ck_observation_year
+
+TEST P7: duplicate contract number must be rejected
+psql:/tmp/p.sql:91: ERROR:  new row for relation "health_observation" violates check constraint "ck_observation_year"
+DETAIL:  Failing row contains (999001, DS001, 1000, 1, 1850, null, null, null, 10.0000, null, null, null).
+psql:/tmp/p.sql:97: ERROR:  duplicate key value violates unique constraint "uq_contract_number"
+DETAIL:  Key (contractnumber)=(C-000123) already exists.
+  ^ expected: violates uq_contract_number
+
+--- Referential integrity: no orphan rows anywhere ---
+                 check                 | violations 
+---------------------------------------+------------
+ orphan HEALTH_OBSERVATION.GeographyID |          0
+ orphan HEALTH_OBSERVATION.IndicatorID |          0
+ orphan DATA_ASSET.DatasetID           |          0
+ orphan CONTRACT.AccountID             |          0
+ orphan ACCOUNT_GEOGRAPHY.GeographyID  |          0
+(5 rows)
+
+
+--- Materialized view freshness ---
+ live_rows | mv_rows | difference | status  
+-----------+---------+------------+---------
+        50 |      50 |          0 | IN SYNC
+(1 row)
+
+
+--- Audit trigger works ---
+UPDATE 1
+           trigger_check            
+------------------------------------
+ PASS: UpdatedAt advanced on update
+(1 row)
+
+
+=== Physical constraint tests complete ===
+
+=== ML metadata and result constraint tests ===
+
+--- Loaded ML data ---
+         t          | count 
+--------------------+-------
+ DOCUMENT_CHUNK     |    32
+ ML_CLUSTER_RESULT  |    32
+ ML_CLUSTER_SUMMARY |     6
+ ML_RUN             |     1
+(4 rows)
+
+
+--- Run metadata is complete and reproducible ---
+ mlrunid |       modelname       | modelversion |  algorithm   | randomseed | trainingdatasetid |  status   | selected_k | silhouette | davies_bouldin | n_chunks 
+---------+-----------------------+--------------+--------------+------------+-------------------+-----------+------------+------------+----------------+----------
+       1 | ds010_theme_discovery | 1.0.0        | TFIDF+KMeans |         42 | DS010             | Completed | 6          | 0.121227   | 2.285536       | 32
+(1 row)
+
+
+TEST M1: chunk must reference a real DATA_ASSET
+psql:/tmp/m.sql:32: ERROR:  insert or update on table "document_chunk" violates foreign key constraint "document_chunk_dataassetid_fkey"
+DETAIL:  Key (dataassetid)=(999999) is not present in table "data_asset".
+  ^ expected: violates foreign key on DataAssetID
+
+TEST M2: page number must be positive
+psql:/tmp/m.sql:39: ERROR:  new row for relation "document_chunk" violates check constraint "ck_chunk_page"
+DETAIL:  Failing row contains (37, 10, 0, null, test, 1, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, 2026-08-06 01:41:40.919627+00).
+  ^ expected: violates ck_chunk_page
+
+TEST M3: duplicate chunk checksum for the same asset must be rejected
+  ^ expected: violates uq_chunk_checksum
+
+TEST M4: cluster result must reference a real run
+psql:/tmp/m.sql:46: ERROR:  duplicate key value violates unique constraint "uq_chunk_checksum"
+DETAIL:  Key (dataassetid, chunkchecksum)=(10, 8cb9f52fe10420e3f6c1be760ea5f4a8e7ef340ef11ad6c1933fd5a14bf67b3f) already exists.
+  ^ expected: violates foreign key on MLRunID
+
+TEST M5: a chunk cannot be assigned twice within one run
+psql:/tmp/m.sql:52: ERROR:  insert or update on table "ml_cluster_result" violates foreign key constraint "ml_cluster_result_mlrunid_fkey"
+DETAIL:  Key (mlrunid)=(999999) is not present in table "ml_run".
+psql:/tmp/m.sql:58: ERROR:  duplicate key value violates unique constraint "ml_cluster_result_pkey"
+DETAIL:  Key (mlrunid, documentchunkid)=(1, 1) already exists.
+  ^ expected: violates primary key (MLRunID, DocumentChunkID)
+
+TEST M6: negative distance to centroid must be rejected
+INSERT 0 1
+psql:/tmp/m.sql:73: ERROR:  new row for relation "ml_cluster_result" violates check constraint "ck_mlcr_distance"
+DETAIL:  Failing row contains (1, 39, 0, -1.000000, null, 2026-08-06 01:41:40.920886+00).
+  ^ expected: violates ck_mlcr_distance
+DELETE 1
+
+TEST M7 (GOVERNANCE): a cluster cannot be marked reviewed without a reviewer
+  ^ expected: violates ck_mlcs_review - review requires ReviewedAt and ReviewedBy
+
+TEST M8 (GOVERNANCE): a valid review is accepted
+psql:/tmp/m.sql:81: ERROR:  new row for relation "ml_cluster_summary" violates check constraint "ck_mlcs_review"
+DETAIL:  Failing row contains (1, 0, Narratives / Based / World, ["narratives", "based", "world", "ways", "worldviews", "values",..., [{"page": 16, "distance": 0.747084, "chunk_index": 28}, {"page":..., null, t, null, null).
+UPDATE 1
+ clusterid |         clusterlabel          | humanreviewed |  reviewedby  
+-----------+-------------------------------+---------------+--------------
+         3 | Income / Renters / Low Income | t             | analyst.demo
+(1 row)
+
+
+--- Referential integrity of ML results ---
+                      check                      | violations 
+-------------------------------------------------+------------
+ orphan ML_CLUSTER_RESULT.DocumentChunkID        |          0
+ orphan ML_CLUSTER_SUMMARY.MLRunID               |          0
+ chunks assigned to a cluster not in the summary |          0
+ chunks not traceable to DS010                   |          0
+(4 rows)
+
+
+--- Full lineage: cluster result back to the source dataset ---
+ datasetid |                  datasetname                  |           filename           | pagenumber | clusterid |        clusterlabel         | distance 
+-----------+-----------------------------------------------+------------------------------+------------+-----------+-----------------------------+----------
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         16 |         0 | Narratives / Based / World  |   0.7471
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         13 |         0 | Narratives / Based / World  |   0.7788
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         14 |         0 | Narratives / Based / World  |   0.8250
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         16 |         0 | Narratives / Based / World  |   0.8513
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         11 |         1 | Funding / School / Counties |   0.5608
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         10 |         1 | Funding / School / Counties |   0.6769
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         10 |         1 | Funding / School / Counties |   0.8375
+ DS010     | 2025 County Health Rankings & Roadmaps Report | chr_2025_national_report.pdf |         17 |         1 | Funding / School / Counties |   0.8930
+(8 rows)
+
+
+=== ML constraint tests complete ===
+
+--- workflow tests ---
+=== Quote-to-contract workflow constraint tests ===
+
+--- Seeding quote workflow data ---
+TRUNCATE TABLE
+INSERT 0 120
+INSERT 0 180
+INSERT 0 40
+INSERT 0 220
+INSERT 0 20
+INSERT 0 0
+INSERT 0 20
+UPDATE 20
+INSERT 0 20
+Seed complete. Row counts:
+           t           | count 
+-----------------------+-------
+ PAYMENT_AUTHORIZATION |    20
+ QUOTE                 |   120
+ QUOTE_CONVERSION      |    20
+ QUOTE_COVERAGE        |   180
+ QUOTE_RISK_FACTOR     |    40
+ QUOTE_STATUS_HISTORY  |   240
+(6 rows)
+
+
+TEST W1: invalid quote status must be rejected
+psql:/tmp/wf.sql:99: ERROR:  new row for relation "quote" violates check constraint "ck_quote_status"
+DETAIL:  Failing row contains (121, Q-BAD-1, 1, null, null, Life, NotARealStatus, 2026-01-01, null, null, null, 2026-08-06 01:41:41.019123+00, 2026-08-06 01:41:41.019123+00).
+  ^ expected: violates ck_quote_status
+
+TEST W2: duplicate quote number must be rejected
+  ^ expected: violates uq_quote_number
+
+TEST W3: effective date after expiration must be rejected
+psql:/tmp/wf.sql:105: ERROR:  duplicate key value violates unique constraint "uq_quote_number"
+DETAIL:  Key (quotenumber)=(Q-000001) already exists.
+  ^ expected: violates ck_quote_dates
+
+TEST W4: negative premium must be rejected
+psql:/tmp/wf.sql:113: ERROR:  new row for relation "quote" violates check constraint "ck_quote_dates"
+DETAIL:  Failing row contains (123, Q-BAD-3, 1, null, null, Life, Draft, 2026-01-01, 2026-12-01, 2026-06-01, null, 2026-08-06 01:41:41.019397+00, 2026-08-06 01:41:41.019397+00).
+psql:/tmp/wf.sql:120: ERROR:  new row for relation "quote" violates check constraint "ck_quote_premium"
+DETAIL:  Failing row contains (124, Q-BAD-4, 1, null, null, Life, Draft, 2026-01-01, null, null, -500.00, 2026-08-06 01:41:41.01957+00, 2026-08-06 01:41:41.01957+00).
+  ^ expected: violates ck_quote_premium
+
+TEST W5: a quote cannot convert twice
+psql:/tmp/wf.sql:126: ERROR:  duplicate key value violates unique constraint "uq_quote_conversion_quote"
+DETAIL:  Key (quoteid)=(4) already exists.
+  ^ expected: violates uq_quote_conversion_quote
+
+TEST W6: quote referencing a nonexistent customer must be rejected
+psql:/tmp/wf.sql:132: ERROR:  insert or update on table "quote" violates foreign key constraint "quote_customerid_fkey"
+DETAIL:  Key (customerid)=(999999) is not present in table "customer".
+  ^ expected: violates foreign key on CustomerID
+
+TEST W7: unknown risk-factor source type must be rejected
+psql:/tmp/wf.sql:138: ERROR:  new row for relation "quote_risk_factor" violates check constraint "ck_qrf_source"
+DETAIL:  Failing row contains (41, 1, Test, PatientMedicalRecord, null, x, Pending, 2026-08-06 01:41:41.019979+00).
+  ^ expected: violates ck_qrf_source (patient-level sources are not permitted)
+
+TEST W8: status history with no actual change must be rejected
+  ^ expected: violates ck_qsh_change
+
+TEST W9: unknown payment method must be rejected
+psql:/tmp/wf.sql:144: ERROR:  new row for relation "quote_status_history" violates check constraint "ck_qsh_change"
+DETAIL:  Failing row contains (241, 1, Draft, Draft, 2026-08-06 01:41:41.02011+00, tester, null).
+  ^ expected: violates ck_pa_method
+
+--- Positive check: valid transitions are accepted ---
+psql:/tmp/wf.sql:151: ERROR:  new row for relation "payment_authorization" violates check constraint "ck_pa_method"
+DETAIL:  Failing row contains (21, 1, AUTH-TEST-9, Cryptocurrency, 100.00, Pending, null, 2026-08-06 01:41:41.020281+00).
+INSERT 0 1
+            ?column?             
+---------------------------------
+ valid quote inserted: Q-VALID-1
+(1 row)
+
+
+=== Workflow constraint tests complete ===

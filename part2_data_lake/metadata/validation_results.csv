@@ -1,0 +1,15 @@
+Check,Status,Detail
+nonempty:geographic_area,PASS,3196 rows
+nonempty:health_indicator,PASS,148 rows
+nonempty:health_observation_sample,PASS,320 rows
+nonempty:dataset,PASS,10 rows
+nonempty:data_asset,PASS,10 rows
+pk_unique:geographic_area.GeographyID,PASS,no duplicate keys
+pk_unique:health_indicator.IndicatorID,PASS,no duplicate keys
+pk_unique:health_observation_sample.ObservationID,PASS,no duplicate keys
+pk_unique:dataset.DatasetID,PASS,no duplicate keys
+pk_unique:data_asset.AssetID,PASS,no duplicate keys
+fk:observation.GeographyID,PASS,0 unresolved
+fk:observation.IndicatorID,PASS,0 unresolved
+format:CountyFIPS,PASS,0 county rows not 5-digit
+format:ObservationYear,PASS,0 invalid years

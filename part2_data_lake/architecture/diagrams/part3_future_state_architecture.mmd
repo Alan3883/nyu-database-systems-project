@@ -1,0 +1,38 @@
+---
+title: Part III Future-State Architecture — PLANNED components are NOT deployed
+---
+flowchart LR
+    subgraph NOW["IMPLEMENTED IN PART III"]
+        direction TB
+        N1["Local four-zone data lake"]
+        N2["Local PostgreSQL 16<br/>36 tables, 16 indexes, 1 matview"]
+        N3["Local Python ML pipeline<br/>TF-IDF + K-means"]
+        N4["Cloud Storage bucket<br/>Part II + part3/ prefix"]
+        N5["BigQuery dataset<br/>curated + ML tables"]
+        N6["Static PNG visualizations"]
+    end
+
+    subgraph PLANNED["PLANNED — NOT DEPLOYED"]
+        direction TB
+        F1["Cloud SQL for PostgreSQL<br/>managed ODS"]
+        F2["Cloud Data Fusion<br/>automated ingestion"]
+        F3["Dataplex Universal Catalog<br/>managed metadata"]
+        F4["Looker Studio<br/>interactive dashboards"]
+        F5["Vertex AI Pipelines<br/>scheduled retraining"]
+        F6["Cloud Monitoring<br/>drift and quality alerts"]
+        F7["Streaming ingestion<br/>Pub/Sub + Dataflow"]
+    end
+
+    N1 -.->|"migrate zones"| F2
+    N2 -.->|"lift to managed service"| F1
+    N3 -.->|"schedule and version"| F5
+    N4 -.->|"register assets"| F3
+    N5 -.->|"connect BI layer"| F4
+    N3 -.->|"add monitoring"| F6
+    N1 -.->|"add real-time path"| F7
+
+    classDef done fill:#E9F7EC,stroke:#3E9B4F,color:#14401f,stroke-width:2px
+    classDef planned fill:#F5F5F5,stroke:#999999,color:#555555,stroke-dasharray: 6 4
+
+    class N1,N2,N3,N4,N5,N6 done
+    class F1,F2,F3,F4,F5,F6,F7 planned

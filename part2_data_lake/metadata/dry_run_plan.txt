@@ -1,0 +1,19 @@
+Output directory: /mnt/data/part2_data_lake
+- DS001: raw/cdc_places_county/places_county_2025.csv
+  https://data.cdc.gov/api/views/swc5-untb/rows.csv?accessType=DOWNLOAD
+- DS002: raw/cdc_chronic_disease_indicators/us_chronic_disease_indicators.csv
+  https://data.cdc.gov/api/views/hksd-2xuw/rows.csv?accessType=DOWNLOAD
+- DS003: raw/county_health_rankings/county_health_rankings_2025.xlsx
+  https://www.countyhealthrankings.org/sites/default/files/media/document/2025%20County%20Health%20Rankings%20Data%20-%20v4.xlsx
+- DS004: raw/county_health_rankings/county_health_rankings_analytic_2025.csv
+  https://www.countyhealthrankings.org/sites/default/files/media/document/analytic_data2025_v3.csv
+- DS005: raw/county_health_rankings/county_health_rankings_data_dictionary_2025.xlsx
+  https://www.countyhealthrankings.org/sites/default/files/media/document/DataDictionary_2025.xlsx
+- DS006: raw/census_acs_5year/acs5_2024_S0101_age_and_sex_county.csv
+  https://api.census.gov/data/2024/acs/acs5/subject?get=NAME,group(S0101)&for=county:*&key=<CENSUS_API_KEY>
+- DS007: raw/census_acs_5year/acs5_2024_S1901_income_county.csv
+  https://api.census.gov/data/2024/acs/acs5/subject?get=NAME,group(S1901)&for=county:*&key=<CENSUS_API_KEY>
+- DS008: raw/census_acs_5year/acs5_2024_S1701_poverty_county.csv
+  https://api.census.gov/data/2024/acs/acs5/subject?get=NAME,group(S1701)&for=county:*&key=<CENSUS_API_KEY>
+- DS009: raw/census_acs_5year/acs5_2024_S2701_health_insurance_county.csv
+  https://api.census.gov/data/2024/acs/acs5/subject?get=NAME,group(S2701)&for=county:*&key=<CENSUS_API_KEY>

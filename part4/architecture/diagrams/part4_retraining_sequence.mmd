@@ -1,0 +1,50 @@
+---
+title: Part IV - unstructured source update and retraining
+---
+sequenceDiagram
+    autonumber
+    participant Job as monitor_unstructured
+    participant SM as source_monitor_service
+    participant Lake as Data lake (raw)
+    participant DB as PostgreSQL
+    participant RT as retraining_service
+    participant ML as ml.src pipeline
+    participant Reg as Model registry
+
+    Job->>SM: check_source()
+    SM->>DB: resolve DS010 via DATASET -> DATA_ASSET
+    SM->>Lake: read watched file
+    SM->>SM: SHA-256 of the bytes
+    SM->>DB: compare with DATA_ASSET.SHA256
+
+    alt checksum unchanged
+        SM-->>Job: no change
+        Note over Job,DB: No ML_RUN is created.<br/>Running the monitor again<br/>changes nothing.
+    else checksum changed
+        SM->>Lake: copy bytes to versions/ (never overwrite)
+        SM->>DB: mark previous asset Superseded
+        SM->>DB: INSERT DATA_ASSET (new version, new checksum)
+        Note over SM,DB: File first, catalogue row second.<br/>A crash between the two leaves an<br/>unreferenced file, not a dangling row.
+
+        Job->>RT: retrain(new asset)
+        RT->>DB: INSERT ML_RUN (Status = Running)
+        Note over RT,DB: Committed on its own, so a<br/>failure that follows is still recorded.
+
+        RT->>ML: extract -> chunk -> clean
+        RT->>ML: TF-IDF -> candidate K -> K-means
+        RT->>ML: top terms, representative passages
+
+        alt pipeline succeeded
+            RT->>Reg: write versioned artifacts
+            RT->>DB: INSERT DOCUMENT_CHUNK
+            RT->>DB: INSERT ML_CLUSTER_RESULT
+            RT->>DB: INSERT ML_CLUSTER_SUMMARY (HumanReviewed = FALSE)
+            RT->>DB: UPDATE ML_RUN = Completed + metrics
+            Note over RT,DB: One transaction. Completing the run<br/>is what activates the model, so a<br/>partially loaded model cannot serve.
+            RT-->>Job: new model active, all clusters unreviewed
+        else pipeline failed
+            RT->>DB: UPDATE ML_RUN = Failed + error
+            Note over RT,DB: No chunk, assignment, or summary row<br/>was written. The previous completed<br/>run is still the latest completed run,<br/>so it keeps serving with no repair.
+            RT-->>Job: previous model preserved
+        end
+    end

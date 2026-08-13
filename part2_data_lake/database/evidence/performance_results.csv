@@ -1,0 +1,25 @@
+QueryID,Description,DatasetRows,Phase,PlanningTimeMs,ExecutionTimeMs,ScanType,IndexUsed,RowsExamined,RowsReturned,SharedHitBlocks,SharedReadBlocks,Notes
+Q01,Account lookup by business key,50,before,0.15,0.02,Seq Scan,none,1,1,1,0,Baseline before Part III indexes and materialized view.
+Q02,Customer lookup by surname,200,before,0.129,0.032,Seq Scan,none,1,1,2,0,Baseline before Part III indexes and materialized view.
+Q03,Contract lookup by contract number,300,before,0.135,0.03,Seq Scan,none,1,1,3,0,Baseline before Part III indexes and materialized view.
+Q04,Account-to-active-contract retrieval,300,before,0.177,0.043,Bitmap Heap Scan; Bitmap Index Scan,ix_contract_account,4,4,12,0,Baseline before Part III indexes and materialized view.
+Q06,Geographic-area-to-account retrieval,50,before,0.284,0.026,Seq Scan,none,0,0,5,0,Baseline before Part III indexes and materialized view.
+Q07,County FIPS to health indicator retrieval,3196,before,0.361,0.032,Index Scan,health_indicator_pkey; ix_geography_countyfips; ix_observation_geography,0,0,12,0,Baseline before Part III indexes and materialized view.
+Q08,Account-to-regional-health five-table join,n/a,before,0.941,0.081,Index Scan; Seq Scan,geographic_area_pkey; health_indicator_pkey; ix_observation_geography,1,1,78,0,Baseline before Part III indexes and materialized view.
+Q09,Dataset-to-data-asset lineage lookup,10,before,0.196,0.025,Seq Scan,none,1,1,4,0,Baseline before Part III indexes and materialized view.
+Q13,Regional indicator aggregation,320,before,0.456,0.284,Index Scan; Seq Scan,geographic_area_pkey,25,25,1510,0,Baseline before Part III indexes and materialized view.
+Q01,Account lookup by business key,50,after,0.26,0.02,Seq Scan,none,1,1,1,0,"Seq Scan chosen: ACCOUNT holds 50 rows and fits in one page, so the planner correctly avoids index overhead. uq_account_business would be used at production scale."
+Q02,Customer lookup by surname,200,after,0.166,0.025,Seq Scan,none,1,1,2,0,Seq Scan chosen: CUSTOMER holds 200 rows. ix_customer_name is present but not cost-effective at this size.
+Q03,Contract lookup by contract number,320,after,0.196,0.046,Seq Scan,none,1,1,4,0,Seq Scan chosen: CONTRACT holds 320 rows. uq_contract_number would be used at production scale.
+Q04,Account-to-active-contract retrieval,320,after,0.206,0.041,Bitmap Heap Scan; Bitmap Index Scan,ix_contract_account_active,5,5,14,0,IMPROVED: switched from the Part II index ix_contract_account to the Part III partial index ix_contract_account_active.
+Q06,Geographic-area-to-account retrieval,50,after,0.34,0.028,Seq Scan,none,0,0,5,0,Seq Scan chosen: ACCOUNT_GEOGRAPHY holds 50 rows.
+Q07,County FIPS to health indicator retrieval,3196,after,0.45,0.054,Index Scan,health_indicator_pkey; ix_geo_countyfips_partial; ix_observation_geography,0,0,6,6,"IMPROVED: now uses the Part III partial index ix_geo_countyfips_partial on 3,196 rows."
+Q08,Account-to-regional-health five-table join,n/a,after,0.75,0.072,Index Scan; Seq Scan,geographic_area_pkey; health_indicator_pkey; ix_observation_geography,1,1,78,0,"Five-table hybrid join, 0.081ms -> 0.072ms. Compare with Q16, which reads the materialized view instead."
+Q09,Dataset-to-data-asset lineage lookup,10,after,0.318,0.022,Seq Scan,none,1,1,4,0,Seq Scan chosen: DATA_ASSET holds 10 rows.
+Q13,Regional indicator aggregation,320,after,0.551,0.246,Index Scan; Seq Scan,geographic_area_pkey,25,25,1510,0,"Aggregation over 320 observations, 0.284ms -> 0.246ms."
+Q10,Quote open work queue (partial index),121,after,0.245,0.044,Seq Scan,none,50,50,12,0,Seq Scan on 121 quotes. The partial index ix_quote_open_status exists and would be used once the closed-quote history grows.
+Q11,Quote-to-contract conversion lookup,20,after,0.155,0.023,Seq Scan,none,0,0,1,0,Seq Scan on 20 conversions.
+Q12,ML cluster-result lookup,32,after,0.3,0.052,Seq Scan,none,4,4,22,0,Seq Scan on 32 cluster results.
+Q14,Dataset and model-run audit lookup,1,after,0.223,0.031,Seq Scan,none,1,1,5,0,Seq Scan on 1 model run.
+Q16,Materialized view read (replaces Q08 join),50,after,0.183,0.027,Seq Scan,none,1,1,2,0,"MATERIALIZED VIEW: 0.027ms versus 0.072ms for the equivalent five-table join in Q08, a 2.7x reduction with no join work at read time."
+Q18,Synthetic-scale regional lookup (500k rows),500000,after,0.162,0.082,Index Scan,ix_perf_obs_geo_ind_year,0,0,0,3,"SCALE TEST on 500,000 synthetic rows: Index Scan via ix_perf_obs_geo_ind_year. The same query without the index takes 7.121ms (Parallel Seq Scan), so the index gives a 222x reduction at production scale."

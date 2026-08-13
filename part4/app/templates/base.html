@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+<header class="masthead">
+  <h1>{{ app_name }}</h1>
+  <div class="sub">{{ part }} &middot; PostgreSQL 16 &middot; SQLAlchemy ORM &middot; Flask</div>
+</header>
+
+<nav class="main">
+  <a href="{{ url_for('dashboard.index') }}" class="{{ 'active' if request.endpoint == 'dashboard.index' }}">Dashboard</a>
+  <a href="{{ url_for('quotes.list_quotes') }}" class="{{ 'active' if request.blueprint == 'quotes' }}">Quotes</a>
+  <a href="{{ url_for('quotes.new_quote') }}">New quote</a>
+  <a href="{{ url_for('policies.list_policies') }}" class="{{ 'active' if request.blueprint == 'policies' }}">Policies</a>
+  <a href="{{ url_for('regional.index') }}" class="{{ 'active' if request.blueprint == 'regional' }}">Regional research</a>
+  <a href="{{ url_for('ml_admin.dashboard') }}" class="{{ 'active' if request.blueprint == 'ml_admin' }}">ML pipeline</a>
+</nav>
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="foot">
+  Regional public-health data is county-level aggregate research context.
+  Machine-learning output is decision support and requires human review before
+  business use. Neither affects pricing or eligibility in this application.
+</footer>
+</body>
+</html>

@@ -1,0 +1,128 @@
+# =====================================================================
+# Project Part III - ML Pipeline Configuration
+#
+# Every value that affects the model output lives here, so a run can be
+# reproduced from this file plus the source PDF.
+# =====================================================================
+
+model:
+  name: "ds010_theme_discovery"
+  version: "1.0.0"
+  algorithm: "TFIDF+KMeans"
+  random_seed: 42
+
+# ---------------------------------------------------------------------
+# Input. The pipeline resolves the PDF through the data lake metadata
+# (DATASET -> DATA_ASSET) and falls back to this literal path.
+# ---------------------------------------------------------------------
+input:
+  dataset_id: "DS010"
+  asset_type: "unstructured document"
+  fallback_pdf_path: "raw/unstructured_documents/chr_2025_national_report.pdf"
+  metadata_catalog: "metadata/dataset_catalog.csv"
+  data_asset_csv: "curated/data_asset.csv"
+  download_manifest: "metadata/download_manifest.json"
+  verify_checksum: true
+
+# ---------------------------------------------------------------------
+# Chunking.
+#
+# DS010 has 18 pages and about 4,224 extractable words. Page-level chunks
+# would give only 18 analysis units, too few for stable clustering, so
+# the pipeline splits within pages on paragraph boundaries.
+#
+# target_words   - preferred chunk size
+# min_words      - chunks below this are merged into the neighbour or dropped
+# max_words      - hard ceiling before a forced split
+# ---------------------------------------------------------------------
+chunking:
+  strategy: "paragraph_aware"
+  target_words: 110
+  min_words: 35
+  max_words: 220
+  preserve_page_numbers: true
+  drop_empty_chunks: true
+
+# ---------------------------------------------------------------------
+# Text cleaning. The repeated running header on every page of the report
+# is removed so it does not dominate the term weights.
+# ---------------------------------------------------------------------
+preprocessing:
+  lowercase: true
+  strip_running_headers: true
+  header_patterns:
+    - "www\\.countyhealthrankings\\.org"
+    - "^\\s*\\d+\\s*\\|"
+    - "March 2025"
+    - "2025 REPORT"
+  normalize_whitespace: true
+  min_token_length: 3
+  # Domain terms that must never be removed as stop words.
+  protected_terms:
+    - health
+    - insurance
+    - income
+    - housing
+    - rural
+    - urban
+    - poverty
+    - care
+    - access
+    - community
+    - equity
+    - coverage
+    - population
+    - county
+
+# ---------------------------------------------------------------------
+# Features.
+#
+# min_df=2  - a term must appear in at least 2 chunks. Removes one-off
+#             typos and artefacts without discarding real vocabulary.
+# max_df=0.8- a term appearing in over 80% of chunks carries no
+#             discriminating signal and is dropped.
+# ngram 1-2 - bigrams capture phrases such as "health care" and
+#             "life expectancy" that unigrams would split.
+# ---------------------------------------------------------------------
+features:
+  vectorizer: "tfidf"
+  ngram_range: [1, 2]
+  min_df: 2
+  max_df: 0.8
+  max_features: 3000
+  sublinear_tf: true
+  stop_words: "english"
+
+# ---------------------------------------------------------------------
+# Clustering. Candidate K values are evaluated with silhouette (higher is
+# better) and Davies-Bouldin (lower is better). selected_k is left null
+# so the pipeline chooses; set it to pin a specific K.
+# ---------------------------------------------------------------------
+clustering:
+  algorithm: "kmeans"
+  candidate_k: [2, 3, 4, 5, 6, 7, 8]
+  selected_k: null
+  n_init: 25
+  max_iter: 500
+  # On a small corpus the silhouette score rises monotonically with K,
+  # because splitting a few points into many tiny groups always looks
+  # "tighter". Taking the unconstrained argmax therefore over-fragments:
+  # at K=8 this corpus produces two-chunk clusters, which are not themes.
+  #
+  # min_cluster_size is the guard. A theme supported by fewer than this
+  # many passages is treated as noise, and any K producing a smaller
+  # cluster is disqualified before the silhouette comparison.
+  min_cluster_size: 4
+  # If a smaller K scores within this tolerance of the best eligible K,
+  # the smaller K wins. Fewer, larger themes are easier to review.
+  parsimony_tolerance: 0.010
+
+# ---------------------------------------------------------------------
+# Output.
+# ---------------------------------------------------------------------
+output:
+  top_terms_per_cluster: 12
+  representative_chunks_per_cluster: 3
+  svd_components: 2
+  outputs_dir: "ml/outputs"
+  models_dir: "ml/models"

@@ -1,0 +1,65 @@
+---
+title: Quote-to-Policy Sequence — successful conversion path
+config:
+  sequence:
+    actorMargin: 42
+    messageFontSize: 12
+    noteFontSize: 11
+    boxMargin: 8
+    mirrorActors: false
+---
+sequenceDiagram
+    autonumber
+    actor C as Customer
+    actor A as Associate
+    participant QS as Quote Service
+    participant DB as PostgreSQL 16
+    actor U as Underwriter
+    participant PG as Payment Gateway
+
+    rect rgb(232, 241, 251)
+    Note over C,DB: A. CAPTURE — UC-01 to UC-05
+    C->>A: Request a quote
+    A->>QS: Look up customer, account, product line
+    QS->>DB: SELECT CUSTOMER, ACCOUNT
+    Note right of DB: uq_account_business blocks duplicates
+    QS->>DB: INSERT QUOTE (Draft) + QUOTE_STATUS_HISTORY
+    C->>A: Choose coverages, limits, deductibles
+    QS->>DB: INSERT QUOTE_COVERAGE
+    end
+
+    rect rgb(255, 243, 224)
+    Note over QS,U: B. RATE — UC-06 to UC-09
+    QS->>DB: UPDATE QUOTE -> Submitted
+    QS->>DB: Read ACCOUNT_GEOGRAPHY, MV_ACCOUNT_REGIONAL_HEALTH_PROFILE
+    Note right of DB: County-level aggregate only.<br/>ck_qrf_source rejects patient-level sources.
+    QS->>DB: INSERT QUOTE_RISK_FACTOR (RegionalAggregate)
+    QS->>U: Present risk factors
+    U->>DB: UPDATE ReviewStatus -> Reviewed
+    Note right of U: Regional context informs awareness,<br/>it is not a rating input.
+    QS->>DB: UPDATE QUOTE -> Rated, EstimatedPremium
+    end
+
+    rect rgb(252, 235, 241)
+    Note over C,PG: C. DECIDE — UC-10 to UC-12
+    A->>C: Present quote
+    QS->>DB: UPDATE QUOTE -> Presented
+    C->>A: Accept
+    QS->>DB: UPDATE QUOTE -> Accepted
+    C->>PG: Submit payment details directly
+    PG-->>QS: Authorization reference
+    Note right of PG: Card data never reaches<br/>the application or database.
+    QS->>DB: INSERT PAYMENT_AUTHORIZATION (reference only)
+    end
+
+    rect rgb(233, 247, 236)
+    Note over QS,DB: D. ISSUE THE POLICY — UC-13, UC-14, UC-16
+    QS->>DB: INSERT CONTRACT (Active) = the issued policy
+    QS->>DB: INSERT QUOTE_CONVERSION
+    Note right of DB: uq_quote_conversion_quote<br/>prevents a second policy.
+    QS->>DB: UPDATE QUOTE -> Converted
+    QS->>DB: INSERT CONTRACT_BENEFIT, CONTRACT_PREMIUM
+    QS->>DB: INSERT DATA_ASSET (path + SHA-256)
+    Note right of DB: Document binary stays in the<br/>document store, not in PostgreSQL.
+    A-->>C: Deliver policy
+    end

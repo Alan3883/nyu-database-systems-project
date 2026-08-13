@@ -1,0 +1,67 @@
+---
+title: Quote-to-Policy Workflow (UC-01 to UC-16)
+config:
+  flowchart:
+    nodeSpacing: 26
+    rankSpacing: 40
+    padding: 8
+---
+flowchart TB
+
+    %% Four phases stacked top to bottom. Inside each phase the steps run
+    %% left to right, which keeps the diagram wide rather than tall.
+
+    subgraph P1["A. CAPTURE &nbsp;&nbsp; UC-01 to UC-05"]
+        direction LR
+        UC01["UC-01<br/>Identify / register<br/>customer<br/><i>CUSTOMER</i>"]
+        UC02["UC-02<br/>Identify account<br/><i>ACCOUNT</i>"]
+        UC03["UC-03<br/>Select<br/>product line"]
+        UC04["UC-04<br/>Enter quote details<br/><i>QUOTE = Draft</i>"]
+        UC05["UC-05<br/>Select coverage<br/><i>QUOTE_COVERAGE</i>"]
+        UC01 --> UC02 --> UC03 --> UC04 --> UC05
+    end
+
+    subgraph P2["B. RATE &nbsp;&nbsp; UC-06 to UC-09"]
+        direction LR
+        UC06{"UC-06<br/>Validate"}
+        UC07["UC-07 Regional aggregate context<br/><i>ACCOUNT_GEOGRAPHY → GEOGRAPHIC_AREA</i><br/><i>SourceType = RegionalAggregate</i>"]
+        UC08["UC-08<br/>Review risk factors<br/><i>Underwriter</i>"]
+        UC09["UC-09<br/>Calculate premium<br/><i>QUOTE = Rated</i>"]
+        UC06 -->|valid| UC07 --> UC08 --> UC09
+    end
+
+    subgraph P3["C. DECIDE &nbsp;&nbsp; UC-10 to UC-12"]
+        direction LR
+        UC10["UC-10<br/>Present quote<br/><i>QUOTE = Presented</i>"]
+        UC11{"UC-11<br/>Customer<br/>decision"}
+        UC12{"UC-12 Payment authorization<br/><i>reference only,<br/>no card data</i>"}
+        UC10 --> UC11 -->|accepts| UC12
+    end
+
+    subgraph P4["D. ISSUE THE POLICY &nbsp;&nbsp; UC-13, UC-14, UC-16"]
+        direction LR
+        UC13["UC-13 Convert quote to policy<br/><i>CONTRACT + QUOTE_CONVERSION</i><br/><i>UNIQUE QuoteID blocks double issue</i>"]
+        UC14["UC-14<br/>Benefits and premiums<br/><i>CONTRACT_BENEFIT,<br/>CONTRACT_PREMIUM</i>"]
+        UC16["UC-16<br/>Policy document metadata<br/><i>DATA_ASSET + SHA-256</i>"]
+        UC13 --> UC14 --> UC16
+    end
+
+    START(["Customer requests a quote"]) --> P1
+    P1 --> P2
+    P2 --> P3
+    P3 -->|authorized| P4
+    P4 --> ISSUED(["POLICY ISSUED &nbsp; CONTRACT status = Active"])
+    P3 -.->|rejected / declined / expired| CLOSED(["Quote closed unconverted"])
+
+    NOTE["UC-15 Status history &nbsp;·&nbsp; every transition above writes one append-only row to QUOTE_STATUS_HISTORY"]
+    P4 -.-> NOTE
+
+    classDef uc   fill:#E8F1FB,stroke:#3B76C4,color:#12325c
+    classDef dec  fill:#FFF3E0,stroke:#E08A2B,color:#5c3a0e
+    classDef term fill:#FCEBF1,stroke:#C0447A,color:#5c1733
+    classDef aud  fill:#F1EBFA,stroke:#7E57C2,color:#2f1c56
+
+    class UC01,UC02,UC03,UC04,UC05,UC07,UC08,UC09,UC10,UC13,UC14,UC16 uc
+    class UC06,UC11,UC12 dec
+    class START,ISSUED,CLOSED term
+    class NOTE aud

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}New quote{% endblock %}
+{% block content %}
+
+<h2>Create a quote</h2>
+
+<div class="panel">
+  <form method="post" action="{{ url_for('quotes.new_quote') }}">
+    <div class="grid cols-2">
+      <div>
+        <h3>Customer and account</h3>
+        <div class="field">
+          <label for="customer_id">Customer</label>
+          <select id="customer_id" name="customer_id" required>
+            {% for c in customers %}
+              <option value="{{ c.customer_id }}">{{ c.customer_id }} — {{ c.display_name }} ({{ c.customer_type }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="account_id">Account</label>
+          <select id="account_id" name="account_id" required>
+            {% for a in accounts %}
+              <option value="{{ a.account_id }}">{{ a.account_id }} — {{ a.account_name }}{% if a.state %} ({{ a.state }}){% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="product_line">Product line</label>
+          <select id="product_line" name="product_line" required>
+            {% for p in product_lines %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="actor">Your name (recorded in the audit trail)</label>
+          <input type="text" id="actor" name="actor" value="agent.demo" required>
+        </div>
+      </div>
+
+      <div>
+        <h3>Dates</h3>
+        <div class="field">
+          <label for="requested_date">Requested date</label>
+          <input type="date" id="requested_date" name="requested_date" value="{{ today }}" required>
+        </div>
+        <div class="field">
+          <label for="effective_date">Effective date</label>
+          <input type="date" id="effective_date" name="effective_date" value="{{ today }}">
+        </div>
+        <div class="field">
+          <label for="expiration_date">Expiration date</label>
+          <input type="date" id="expiration_date" name="expiration_date" value="{{ next_year }}">
+        </div>
+
+        <h3>First coverage line (optional)</h3>
+        <div class="field">
+          <label for="coverage_name">Coverage name</label>
+          <input type="text" id="coverage_name" name="coverage_name" value="Core medical coverage">
+        </div>
+        <div class="field">
+          <label for="coverage_limit">Coverage limit</label>
+          <input type="number" step="0.01" min="0" id="coverage_limit" name="coverage_limit" value="500000">
+        </div>
+        <div class="field">
+          <label for="deductible">Deductible</label>
+          <input type="number" step="0.01" min="0" id="deductible" name="deductible" value="2500">
+        </div>
+      </div>
+    </div>
+
+    <button type="submit">Create draft quote</button>
+  </form>
+</div>
+
+<div class="notice">
+  <strong>Demonstration pricing.</strong> The proposed premium is computed from
+  the coverage limit and deductible entered above using a clearly labelled
+  demonstration rule. It is not a filed insurance rate. No public-health value
+  and no machine-learning output reaches the calculation.
+</div>
+
+{% endblock %}

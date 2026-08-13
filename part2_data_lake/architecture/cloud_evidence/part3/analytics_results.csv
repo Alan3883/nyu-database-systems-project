@@ -1,0 +1,69 @@
+
+### QUERY 1: Indicators and observations by geographic level
+GeographyType,geographies,distinct_indicators,observations
+County,3144,40,320
+State,51,0,0
+Nation,1,0,0
+
+### QUERY 2: Health indicators summarized by state
+StateCode,IndicatorName,FactorCategory,county_observations,avg_value,min_value,max_value
+OK,Cholesterol screening among adults,Prevention measure,2,85.2,84.3,86.1
+SC,Visits to doctor for routine checkup within the past year among adults,Prevention measure,2,81.9,81.4,82.4
+WA,Colorectal cancer screening among adults aged 45–75 years,Prevention measure,2,66.2,63.0,69.4
+GA,Loneliness among adults,Other,3,38.23,37.4,39.3
+MS,No leisure-time physical activity among adults,Behavioral risk factor,2,37.65,37.0,38.3
+TN,Depression among adults,Disease outcome,2,30.25,29.0,31.5
+GA,Lack of social and emotional support among adults,Other,2,28.05,27.5,28.6
+MS,Fair or poor self-rated health status among adults,Health status,2,26.7,25.4,28.0
+TX,No leisure-time physical activity among adults,Behavioral risk factor,2,25.45,24.1,26.8
+MN,Depression among adults,Disease outcome,2,24.2,23.1,25.3
+MI,Lack of social and emotional support among adults,Other,2,22.05,21.0,23.1
+OK,Fair or poor self-rated health status among adults,Health status,2,21.3,18.5,24.1
+TX,Frequent physical distress among adults,Health status,2,19.6,19.2,20.0
+TX,Frequent mental distress among adults,Health status,2,17.9,17.4,18.4
+MS,Diagnosed diabetes among adults,Disease outcome,2,17.1,12.4,21.8
+TX,Diagnosed diabetes among adults,Disease outcome,2,17.0,14.0,20.0
+GA,Housing insecurity in the past 12 months among adults,Other,2,16.75,12.2,21.3
+MN,Current cigarette smoking among adults,Behavioral risk factor,2,16.1,15.9,16.3
+IL,Food insecurity in the past 12 months among adults,Other,2,14.75,14.1,15.4
+TX,Current cigarette smoking among adults,Behavioral risk factor,2,14.4,12.6,16.2
+WI,All teeth lost among adults aged >=65 years,Disease outcome,2,13.8,9.1,18.5
+TN,Current lack of health insurance among adults aged 18-64 years,Prevention measure,2,12.3,10.2,14.4
+OK,Hearing disability among adults,Disability,3,11.07,10.5,12.2
+MS,Independent living disability among adults,Disability,2,10.15,8.0,12.3
+MN,Current asthma among adults,Disease outcome,2,10.05,10.0,10.1
+TX,Current asthma among adults,Disease outcome,2,10.05,9.6,10.5
+TN,Independent living disability among adults,Disability,2,9.75,8.8,10.7
+TX,Chronic obstructive pulmonary disease among adults,Disease outcome,2,9.25,7.8,10.7
+MS,Hearing disability among adults,Disability,2,9.15,8.5,9.8
+TX,Cancer (non-skin) or melanoma among adults,Disease outcome,2,8.6,8.2,9.0
+OR,Cancer (non-skin) or melanoma among adults,Disease outcome,2,8.55,7.6,9.5
+MN,Housing insecurity in the past 12 months among adults,Other,2,8.05,8.0,8.1
+IL,Lack of reliable transportation in the past 12 months among adults,Other,2,7.85,7.2,8.5
+MN,Chronic obstructive pulmonary disease among adults,Disease outcome,2,6.8,6.7,6.9
+MN,Utility services shut-off threat in the past 12 months among adults,Other,2,6.2,5.6,6.8
+IL,Utility services shut-off threat in the past 12 months among adults,Other,2,5.65,4.8,6.5
+MI,Vision disability among adults,Disability,2,4.7,3.9,5.5
+MI,Self-care disability among adults,Disability,2,3.95,3.2,4.7
+
+### QUERY 3: ML clusters with chunk counts and top terms
+ClusterID,SuggestedLabel,ChunkCount,verified_chunks,avg_distance,source_pages,HumanReviewed
+0,Narratives / Based / World,4,4,0.8005,3,false
+1,Funding / School / Counties,4,4,0.742,3,false
+2,Health Institute / Wisconsin Population / University,7,7,0.8079,5,false
+3,Income / Renters / Low Income,4,4,0.7386,3,false
+4,Public Health / Public / Organizing,4,4,0.7312,3,false
+5,Rules / Conditions / People,9,9,0.8498,6,false
+
+### QUERY 4: Dataset lineage and licence inventory
+DatasetID,DatasetName,SourceOrganization,DataClassification,GeographicLevel,License,asset_count,total_bytes
+DS001,"CDC PLACES County Data, 2025 release",Centers for Disease Control and Prevention,Structured,County,Public domain (U.S. government work),1,53396904
+DS002,U.S. Chronic Disease Indicators,Centers for Disease Control and Prevention,Structured,State/Territory,Public domain (U.S. government work),1,111334061
+DS003,2025 County Health Release National Data,County Health Rankings & Roadmaps,Structured,County/State/National,Public use with attribution (CHR&R terms),1,16002176
+DS004,2025 CHR CSV Analytic Data,County Health Rankings & Roadmaps,Structured,County/State,Public use with attribution (CHR&R terms),1,13085361
+DS005,2025 County Health Rankings Data Dictionary,County Health Rankings & Roadmaps,Semi-structured,Documentation,Public use with attribution (CHR&R terms),1,29136
+DS006,2024 ACS 5-Year Subject Table S0101: Age and Sex,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,10406154
+DS007,2024 ACS 5-Year Subject Table S1901: Income,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,3215603
+DS008,2024 ACS 5-Year Subject Table S1701: Poverty,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,7796442
+DS009,2024 ACS 5-Year Subject Table S2701: Health Insurance,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,10879359
+DS010,2025 County Health Rankings & Roadmaps Report,County Health Rankings & Roadmaps,Unstructured,National,Public use with attribution (CHR&R terms),1,14580902

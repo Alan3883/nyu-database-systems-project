@@ -1,0 +1,18 @@
+Layer,Component,GoogleCloudService,Purpose,Notes
+Source,External Public Sources,None,Public health and census datasets,"CDC PLACES, CDC CDI, County Health Rankings, Census ACS, CHR PDF report"
+Ingestion,Ingestion and Data Quality,Cloud Data Fusion,Copy files and run cleaning and checks,Moves data into the lake zones
+Storage,Raw Zone,Cloud Storage (GCS),Store downloaded files unchanged,Keeps checksums and original names
+Storage,Processed Zone,Cloud Storage (GCS),Store cleaned source-specific files,Standardized columns and codes
+Storage,Curated Zone,Cloud Storage (GCS),Store common shared tables,"Geography, indicator, observation tables"
+Storage,Metadata Zone,Cloud Storage (GCS),Store catalog and lineage,"Dataset catalog, data dictionary, quality, lineage"
+Database,ODS / Logical Schema,Cloud SQL for PostgreSQL,Hold the structured logical schema,Loads curated data for reporting
+Consumer,Reporting,Looker Studio,Show reports and dashboards,Example analytics consumer
+Consumer,Claims Planning,None,Business use of curated data,"Decision support, future work"
+Consumer,Product Design,None,Business use of curated data,"Decision support, future work"
+Consumer,Rate Book Review,None,Business use of curated data,"Decision support, future work"
+Governance,Metadata Management,Dataplex Universal Catalog (optional),Track datasets and lineage,Optional in this project
+Governance,Data Quality,Cloud Data Fusion,Run quality checks,"Missing values, duplicates, code checks"
+Governance,Access Control,Cloud IAM,Limit who can read data,Role-based access
+Governance,Encryption,Google default encryption,Protect data at rest and in transit,On by default
+Governance,Retention,Object Lifecycle Management,Manage data over time,Supports retention standards
+Governance,Audit Logs,Cloud Audit Logs,Record access and changes,Supports audit and review

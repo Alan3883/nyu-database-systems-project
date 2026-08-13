@@ -1,0 +1,27 @@
+TableName,FirstNormalForm,SecondNormalForm,ThirdNormalForm,Issue,ChangeMade,Reason
+ACCOUNT,Yes,Yes,Yes,None,Added unique constraint on AccountName+Address1+City+State+Zip+CompanyCode,Keeps natural business uniqueness
+ACCOUNT_ALIAS,Yes,Yes,Yes,None,Kept as separate table with AccountID FK,Stores source records for one account
+BILLING_ACCOUNT,Yes,Yes,Yes,None,None,Simple entity with single-column key
+ACCOUNT_BILLING_ACCOUNT,Yes,Yes,Yes,Many-to-many,Composite key AccountID+BillingAccountID+ProductLine,Resolves account to billing account
+ACCOUNT_ADMIN,Yes,Yes,Yes,None,None,Simple entity with single-column key
+ACCOUNT_ADMIN_ASSIGNMENT,Yes,Yes,Yes,Many-to-many,Composite key AccountID+AdminID+ProductLine,Resolves account to admin
+ACCOUNT_RELATIONSHIP,Yes,Yes,Yes,Recursive many-to-many,Two FKs to ACCOUNT with check MasterAccountID<>MemberAccountID,Models master/member links
+CUSTOMER,Yes,Yes,Yes,None,None,Single-column surrogate key
+ACCOUNT_MEMBER,Yes,Yes,Yes,History needed,StartDate added to primary key,Supports multiple employment periods
+ASSOCIATE,Yes,Yes,Yes,None,None,Single-column surrogate key
+MANAGER_CONTRACT,Yes,Yes,Yes,None,Added unique constraint AssociateID+WritingNumber+SitCode,Keeps natural selling-agreement uniqueness
+ACCOUNT_MANAGER_CONTRACT,Yes,Yes,Yes,Many-to-many,Composite key AccountID+ManagerContractID+RoleType,Resolves account to manager contract
+ASSOCIATE_RELATIONSHIP,Yes,Yes,Yes,Recursive many-to-many,Two FKs to ASSOCIATE with check AssociateID<>RelatedAssociateID,Models associate links
+CONTRACT,Yes,Yes,Yes,None,Added unique constraint on ContractNumber,ContractNumber is a natural key
+CONTRACT_BENEFIT,Yes,Yes,Yes,None,BenefitID surrogate key with ContractID FK,One contract has many benefits
+CONTRACT_PREMIUM,Yes,Yes,Yes,None,PremiumID surrogate key with BenefitID FK,One benefit has many premiums
+CUSTOMER_RELATIONSHIP,Yes,Yes,Yes,Recursive many-to-many,Two FKs to CUSTOMER with check CustomerID<>RelatedCustomerID,Models family and trust links
+CUSTOMER_CONTRACT_ROLE,Yes,Yes,Yes,Many-to-many,Composite key CustomerID+ContractID+RoleType,Resolves customer to contract roles
+CUSTOMER_BENEFIT_ROLE,Yes,Yes,Yes,Many-to-many,Composite key CustomerID+BenefitID+RoleType,Resolves customer to benefit roles
+CUSTOMER_ASSOCIATE_ROLE,Yes,Yes,Yes,Many-to-many,Composite key CustomerID+AssociateID+RoleType,Resolves customer to associate roles
+DATASET,Yes,Yes,Yes,None,DatasetID key with source metadata,Stores dataset metadata
+DATA_ASSET,Yes,Yes,Yes,None,AssetID surrogate key with DatasetID FK,One dataset has many files
+GEOGRAPHIC_AREA,Yes,Yes,Yes,Hierarchy needed,Self-reference ParentGeographyID FK,Builds nation/state/county levels
+HEALTH_INDICATOR,Yes,Yes,Yes,None,IndicatorID surrogate key,Defines a measure once
+HEALTH_OBSERVATION,Yes,Yes,Yes,None,FKs to DATASET+GEOGRAPHIC_AREA+HEALTH_INDICATOR,Stores one aggregate value per geography and indicator
+ACCOUNT_GEOGRAPHY,Yes,Yes,Yes,Many-to-many,Composite key AccountID+GeographyID+RelationshipType,Links accounts to geographic areas

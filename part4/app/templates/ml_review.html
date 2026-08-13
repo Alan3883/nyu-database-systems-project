@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Review ML run {{ run.ml_run_id }}{% endblock %}
+{% block content %}
+
+<h2>ML run {{ run.ml_run_id }} — analyst review
+  {% if is_active %}<span class="tag ok">active model</span>{% endif %}
+  {% if run.status == 'Failed' %}<span class="tag bad">failed run</span>{% endif %}
+</h2>
+
+<div class="panel">
+  <div class="grid cols-2">
+    <dl class="kv">
+      <dt>Model</dt><dd>{{ run.model_name }} <strong>{{ run.model_version }}</strong></dd>
+      <dt>Algorithm</dt><dd class="mono">{{ run.algorithm }}</dd>
+      <dt>Random seed</dt><dd>{{ run.random_seed }}</dd>
+      <dt>Run timestamp</dt><dd class="mono small">{{ run.started_at.strftime('%Y-%m-%d %H:%M:%S %Z') if run.started_at }}</dd>
+      <dt>Status</dt><dd>{{ run.status }}</dd>
+    </dl>
+    <dl class="kv">
+      {% set m = run.metrics_json or {} %}
+      <dt>Source asset</dt>
+      <dd>
+        {% if asset %}{{ asset.file_name }} <strong>({{ asset.schema_version or 'v1' }})</strong>
+          <div class="mono small muted">{{ asset.relative_path }}</div>
+        {% else %}{{ m.get('source_relative_path', '—') }}{% endif %}
+      </dd>
+      <dt>Source checksum</dt><dd class="mono small">{{ (m.get('source_sha256') or '—')[:40] }}…</dd>
+      <dt>Cluster metrics</dt>
+      <dd class="small">K = {{ m.get('selected_k', '—') }} ·
+        silhouette {{ m.get('silhouette_score', '—') }} ·
+        Davies-Bouldin {{ m.get('davies_bouldin_score', '—') }} ·
+        {{ m.get('n_chunks', '—') }} chunks</dd>
+      <dt>Selection reason</dt><dd class="small muted">{{ m.get('selection_reason', '—') }}</dd>
+      <dt>Review progress</dt>
+      <dd>{{ review.reviewed_clusters }} of {{ review.total_clusters }} clusters reviewed,
+        {{ review.approved_mappings }} active mapping(s)</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="notice">
+  <strong>Governance.</strong> Model output is a hypothesis until a named analyst
+  reviews it. An unreviewed cluster is never shown as business insight, and a
+  cluster cannot be mapped to a health indicator before it has been reviewed.
+  Approved themes appear as regional research context only; they do not affect
+  eligibility or premium.
+</div>
+
+{% for s in summaries %}
+<div class="cluster {{ 'reviewed' if s.human_reviewed else 'unreviewed' }}">
+  <h3 style="margin-top:0">
+    Cluster {{ s.cluster_id }} — {{ s.cluster_label }}
+    {% if s.human_reviewed %}
+      <span class="tag ok">reviewed</span>
+    {% else %}
+      <span class="tag warn">unreviewed — model output only</span>
+    {% endif %}
+    <span class="small muted">{{ sizes.get(s.cluster_id, 0) }} chunks</span>
+  </h3>
+
+  <p class="terms"><strong>Top terms:</strong>
+    <span class="mono">{{ s.top_terms[:12]|join(' · ') }}</span></p>
+
+  {% for c in passages.get(s.cluster_id, []) %}
+    <div class="passage">
+      <span class="small muted">page {{ c.page_number }}{% if c.section_name %} · {{ c.section_name }}{% endif %}</span><br>
+      {{ c.chunk_text[:340] }}{% if c.chunk_text|length > 340 %}…{% endif %}
+    </div>
+  {% endfor %}
+
+  {% if s.human_reviewed %}
+    <p class="small"><strong>Business interpretation:</strong> {{ s.business_interpretation }}</p>
+    <p class="small muted">Reviewed by {{ s.reviewed_by }} on
+      {{ s.reviewed_at.strftime('%Y-%m-%d %H:%M') if s.reviewed_at }}</p>
+  {% endif %}
+
+  <div class="grid cols-2">
+    <form method="post" action="{{ url_for('ml_admin.submit_review', ml_run_id=run.ml_run_id, cluster_id=s.cluster_id) }}">
+      <div class="field">
+        <label for="int{{ s.cluster_id }}">Business interpretation</label>
+        <textarea id="int{{ s.cluster_id }}" name="interpretation">{{ s.business_interpretation or '' }}</textarea>
+      </div>
+      <div class="inline">
+        <div class="field"><label for="rev{{ s.cluster_id }}">Reviewer name (required)</label>
+          <input type="text" id="rev{{ s.cluster_id }}" name="reviewer" placeholder="analyst.name" required></div>
+        <div class="field"><label for="dec{{ s.cluster_id }}">Decision</label>
+          <select id="dec{{ s.cluster_id }}" name="decision">
+            <option value="approve">Approve interpretation</option>
+            <option value="reject">Reject / withdraw review</option>
+          </select></div>
+        <div class="field"><label>&nbsp;</label><button type="submit">Record review</button></div>
+      </div>
+    </form>
+
+    <div>
+      <h3 style="margin-top:0">Approved indicator mappings</h3>
+      <table>
+        <thead><tr><th>Health indicator</th><th>Approved by</th><th>Active</th><th></th></tr></thead>
+        <tbody>
+          {% for m in s.indicator_maps %}
+          <tr>
+            <td class="small">{{ m.indicator.indicator_name if m.indicator else m.health_indicator_id }}
+              {% if m.review_notes %}<div class="small muted">{{ m.review_notes }}</div>{% endif %}</td>
+            <td class="small">{{ m.approved_by }}<div class="small muted">{{ m.approved_at.strftime('%Y-%m-%d %H:%M') if m.approved_at }}</div></td>
+            <td>{% if m.is_active %}<span class="tag ok">active</span>{% else %}<span class="tag">retired</span>{% endif %}</td>
+            <td>
+              {% if m.is_active %}
+              <form method="post" action="{{ url_for('ml_admin.retire_mapping', mapping_id=m.ml_cluster_indicator_map_id) }}">
+                <input type="hidden" name="ml_run_id" value="{{ run.ml_run_id }}">
+                <input type="hidden" name="actor" value="analyst.demo">
+                <button type="submit" class="danger small">Retire</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="muted small">No mapping.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if s.human_reviewed %}
+      <form method="post" action="{{ url_for('ml_admin.submit_mapping', ml_run_id=run.ml_run_id, cluster_id=s.cluster_id) }}">
+        <div class="field">
+          <label for="ind{{ s.cluster_id }}">Map to health indicator</label>
+          <select id="ind{{ s.cluster_id }}" name="indicator_id" required>
+            {% for i in indicators %}
+              <option value="{{ i.indicator_id }}">{{ i.indicator_name }}{% if i.factor_category %} — {{ i.factor_category }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="inline">
+          <div class="field"><label for="app{{ s.cluster_id }}">Approved by (required)</label>
+            <input type="text" id="app{{ s.cluster_id }}" name="approver" placeholder="analyst.name" required></div>
+          <div class="field"><label for="not{{ s.cluster_id }}">Notes</label>
+            <input type="text" id="not{{ s.cluster_id }}" name="notes"></div>
+          <div class="field"><label>&nbsp;</label><button type="submit">Approve mapping</button></div>
+        </div>
+      </form>
+      {% else %}
+      <p class="small muted">Mapping is disabled until this cluster has been reviewed.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="panel"><p class="muted">This run produced no cluster summaries.</p></div>
+{% endfor %}
+
+{% endblock %}

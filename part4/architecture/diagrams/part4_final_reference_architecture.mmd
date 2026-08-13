@@ -1,0 +1,70 @@
+---
+title: Part IV final reference architecture - IMPLEMENTED components only
+---
+flowchart TB
+
+    subgraph BUS["BUSINESS DOMAIN — who acts and what they decide"]
+        direction LR
+        B1["Customer"] --> B4["Quote"]
+        B2["Agent"] --> B4
+        B4 --> B5["Policy<br/>(CONTRACT)"]
+        B3["Analyst /<br/>reviewer"] --> B6["Regional portfolio<br/>research"]
+        B5 --> B7["Business<br/>review"]
+        B6 --> B7
+    end
+
+    subgraph APP["APPLICATION DOMAIN — Python 3, Flask, SQLAlchemy 2.x ORM"]
+        direction LR
+        A0["Flask web application<br/>server-rendered Jinja2"]
+        A1["SQLAlchemy ORM<br/>21 tables + 1 view"]
+        A2["quote_service"]
+        A3["policy_service"]
+        A4["regional_context<br/>_service"]
+        A8["model_review_service<br/>human-review workflow"]
+        A6["source_monitor<br/>_service"]
+        A7["retraining_service"]
+        A5["ml_pipeline_service"]
+        A9["BigQuery<br/>analytics job"]
+        A0 --> A1
+        A1 --> A2 --> A3
+        A1 --> A4 --> A8
+        A6 --> A7 --> A5
+    end
+
+    subgraph DIKW["DIKW DOMAIN — data to decision"]
+        direction LR
+        D["<b>DATA</b><br/>raw public files<br/>DS010 report, versioned<br/>insurance transactions"]
+        I["<b>INFORMATION</b><br/>curated health observations<br/>quotes, coverage, policies<br/>extracted document chunks"]
+        K["<b>KNOWLEDGE</b><br/>reviewed ML themes<br/>approved regional indicators"]
+        E["<b>DECISION</b><br/>quote and policy workflow<br/>product and portfolio review<br/>human approval"]
+        D --> I --> K --> E
+    end
+
+    subgraph INF["INFRASTRUCTURE DOMAIN — all local except the cloud sandbox"]
+        direction LR
+        F1["Local data lake<br/>raw / processed /<br/>curated / metadata"]
+        F3["PostgreSQL 16<br/>Docker · 37 tables<br/>1 materialized view"]
+        F4["Model registry<br/>joblib artifacts<br/>per version"]
+        F5["BigQuery<br/>Sandbox"]
+        F6["Application and<br/>pipeline logs"]
+        F7["GitHub<br/>repository"]
+        F1 --- F3 --- F4 --- F5 --- F6 --- F7
+    end
+
+    subgraph GOV["GOVERNANCE — spans all four domains"]
+        direction LR
+        G1["<b>Data quality</b><br/>SHA-256 checksums<br/>key uniqueness<br/>foreign keys<br/>FIPS validation"]
+        G2["<b>Lifecycle and lineage</b><br/>immutable raw versions<br/>DATASET → DATA_ASSET<br/>→ chunk → run<br/>retention"]
+        G3["<b>Access and integrity</b><br/>least privilege<br/>atomic transactions<br/>no credentials in VCS<br/>no patient-level data"]
+        G4["<b>Model governance</b><br/>model versioning<br/>mandatory human review<br/>reviewer identity<br/>rollback by inaction"]
+        G5["<b>Fairness, accountability,<br/>transparency</b><br/>no pricing or eligibility use<br/>audit trail<br/>labelled research context"]
+        G1 --- G2 --- G3 --- G4 --- G5
+    end
+
+    BUS ==> APP
+    APP ==> DIKW
+    DIKW ==> INF
+    INF ==> GOV
+
+    classDef govbox fill:#f0eaf9,stroke:#5b3d8c,color:#3d2a60
+    class G1,G2,G3,G4,G5 govbox

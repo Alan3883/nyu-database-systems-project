@@ -1,0 +1,7 @@
+ClusterID,SuggestedLabel,ChunkCount,Pages,MeanDistanceToCentroid,TopTerms,HumanReviewed
+0,Narratives / Based / World,4,13;14;16,0.800528,narratives;based;world;ways;worldviews;values;patterns;structural determinants;structural;practices;stories;race,FALSE
+1,Funding / School / Counties,4,10;11;17,0.74204,funding;school;counties;region;scores;schools;black;education;average;belt region;defined;national,FALSE
+2,Health Institute / Wisconsin Population / University,7,2;5;7;15;18,0.807863,health institute;wisconsin population;university;institute;wisconsin;university wisconsin;population;population health;thrive;chr;model;work,FALSE
+3,Income / Renters / Low Income,4,8;12;17,0.738603,income;renters;low income;low;housing;income renters;american;american community;survey;community survey;data;cost,FALSE
+4,Public Health / Public / Organizing,4,3;14;16,0.731169,public health;public;organizing;community organizing;reform;goals;political;building;building power;economic;social;issues,FALSE
+5,Rules / Conditions / People,9,2;5;6;7;9;16,0.849753,rules;conditions;people;power;community conditions;societal rules;societal;community;laws;change;communities;applied,FALSE

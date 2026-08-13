@@ -1,0 +1,16 @@
+Field,Value
+DatasetID,DS010
+DatasetName,2025 County Health Rankings & Roadmaps Report
+SourceOrganization,County Health Rankings & Roadmaps
+AssetID,10
+FileName,chr_2025_national_report.pdf
+RelativePath,raw/unstructured_documents/chr_2025_national_report.pdf
+FileFormat,PDF
+AssetType,unstructured document
+FileSizeBytes,14580902
+ExpectedSHA256,1d2e55927cd5bab403a60b2cc2156afd6558e3629af1fa706b996ccfcbef328b
+ChecksumVerified,True
+TotalPages,18
+ExtractedPages,18
+FailedPages,0
+TotalWords,4093

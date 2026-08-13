@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Policy {{ contract.contract_number }}{% endblock %}
+{% block content %}
+
+<h2>Policy {{ contract.contract_number }} <span class="tag accepted">{{ contract.status }}</span></h2>
+
+<div class="grid cols-2">
+  <div class="panel">
+    <h3>Contract</h3>
+    <dl class="kv">
+      <dt>Contract ID</dt><dd>{{ contract.contract_id }}</dd>
+      <dt>Account</dt><dd>{{ contract.account.account_name if contract.account else '—' }}
+        (ID {{ contract.account_id }})</dd>
+      <dt>Line of business</dt><dd>{{ contract.line_of_business or '—' }}</dd>
+      <dt>Plan</dt><dd>{{ contract.plan_name or '—' }}</dd>
+      <dt>Effective</dt><dd>{{ contract.effective_date or '—' }}</dd>
+      <dt>End</dt><dd>{{ contract.end_date or '—' }}</dd>
+      <dt>Annualized premium</dt><dd><strong>{{ '%.2f'|format(total_premium) }}</strong></dd>
+      <dt>Source quote</dt>
+      <dd>
+        {% if quote %}
+          <a href="{{ url_for('quotes.quote_detail', quote_id=quote.quote_id) }}">{{ quote.quote_number }}</a>
+          <div class="small muted">Converted from an accepted quote in a single transaction.</div>
+        {% else %}<span class="muted">Not created from a quote.</span>{% endif %}
+      </dd>
+    </dl>
+  </div>
+
+  <div class="panel">
+    <h3>Benefits and premiums</h3>
+    <table>
+      <thead><tr><th>Benefit</th><th>Type</th><th>Effective</th><th class="num">Year</th>
+        <th class="num">Annualized premium</th></tr></thead>
+      <tbody>
+        {% for b in contract.benefits %}
+          {% for p in b.premiums %}
+          <tr>
+            <td>{{ b.benefit_name }}</td>
+            <td class="small">{{ b.benefit_type or '—' }}</td>
+            <td class="small">{{ b.effective_date or '—' }}</td>
+            <td class="num">{{ p.year_number or '—' }}</td>
+            <td class="num">{{ '%.2f'|format(p.annualized_premium or 0) }}</td>
+          </tr>
+          {% else %}
+          <tr><td>{{ b.benefit_name }}</td><td colspan="4" class="muted">No premium row.</td></tr>
+          {% endfor %}
+        {% else %}
+        <tr><td colspan="5" class="muted">No benefits.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="small muted">
+      Each benefit came from one quote coverage line, and its premium is the
+      premium proposed on that line. Conversion does not re-price.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

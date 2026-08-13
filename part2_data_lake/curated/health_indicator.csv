@@ -1,0 +1,149 @@
+IndicatorID,IndicatorCode,IndicatorName,DiseaseCategory,FactorCategory,Unit,SourceDataset,Description
+1,ARTHRITIS,Arthritis among adults,Health Outcomes,Disease outcome,%,DS001,Arthritis among adults
+2,CASTHMA,Current asthma among adults,Health Outcomes,Disease outcome,%,DS001,Current asthma among adults
+3,STROKE,Stroke among adults,Health Outcomes,Disease outcome,%,DS001,Stroke among adults
+4,DISABILITY,Any disability among adults,Disability,Disability,%,DS001,Any disability among adults
+5,OBESITY,Obesity among adults,Health Outcomes,Disease outcome,%,DS001,Obesity among adults
+6,DIABETES,Diagnosed diabetes among adults,Health Outcomes,Disease outcome,%,DS001,Diagnosed diabetes among adults
+7,DEPRESSION,Depression among adults,Health Outcomes,Disease outcome,%,DS001,Depression among adults
+8,HEARING,Hearing disability among adults,Disability,Disability,%,DS001,Hearing disability among adults
+9,BINGE,Binge drinking among adults,Health Risk Behaviors,Behavioral risk factor,%,DS001,Binge drinking among adults
+10,BPHIGH,High blood pressure among adults,Health Outcomes,Disease outcome,%,DS001,High blood pressure among adults
+11,VISION,Vision disability among adults,Disability,Disability,%,DS001,Vision disability among adults
+12,MOBILITY,Mobility disability among adults,Disability,Disability,%,DS001,Mobility disability among adults
+13,SELFCARE,Self-care disability among adults,Disability,Disability,%,DS001,Self-care disability among adults
+14,MHLTH,Frequent mental distress among adults,Health Status,Health status,%,DS001,Frequent mental distress among adults
+15,HIGHCHOL,High cholesterol among adults who have ever been screened,Health Outcomes,Disease outcome,%,DS001,High cholesterol among adults who have ever been screened
+16,PHLTH,Frequent physical distress among adults,Health Status,Health status,%,DS001,Frequent physical distress among adults
+17,COLON_SCREEN,Colorectal cancer screening among adults aged 45–75 years,Prevention,Prevention measure,%,DS001,Colorectal cancer screening among adults aged 45–75 years
+18,LPA,No leisure-time physical activity among adults,Health Risk Behaviors,Behavioral risk factor,%,DS001,No leisure-time physical activity among adults
+19,COPD,Chronic obstructive pulmonary disease among adults,Health Outcomes,Disease outcome,%,DS001,Chronic obstructive pulmonary disease among adults
+20,INDEPLIVE,Independent living disability among adults,Disability,Disability,%,DS001,Independent living disability among adults
+21,CHD,Coronary heart disease among adults,Health Outcomes,Disease outcome,%,DS001,Coronary heart disease among adults
+22,MAMMOUSE,Mammography use among women aged 50-74 years,Prevention,Prevention measure,%,DS001,Mammography use among women aged 50-74 years
+23,CHECKUP,Visits to doctor for routine checkup within the past year among adults,Prevention,Prevention measure,%,DS001,Visits to doctor for routine checkup within the past year among adults
+24,BPMED,Taking medicine to control high blood pressure among adults with high blood pressure,Prevention,Prevention measure,%,DS001,Taking medicine to control high blood pressure among adults with high blood pressure
+25,CSMOKING,Current cigarette smoking among adults,Health Risk Behaviors,Behavioral risk factor,%,DS001,Current cigarette smoking among adults
+26,HOUSINSECU,Housing insecurity in the past 12 months among adults,Health-Related Social Needs,Other,%,DS001,Housing insecurity in the past 12 months among adults
+27,SHUTUTILITY,Utility services shut-off threat in the past 12 months among adults,Health-Related Social Needs,Other,%,DS001,Utility services shut-off threat in the past 12 months among adults
+28,FOODINSECU,Food insecurity in the past 12 months among adults,Health-Related Social Needs,Other,%,DS001,Food insecurity in the past 12 months among adults
+29,TEETHLOST,All teeth lost among adults aged >=65 years,Health Outcomes,Disease outcome,%,DS001,All teeth lost among adults aged >=65 years
+30,GHLTH,Fair or poor self-rated health status among adults,Health Status,Health status,%,DS001,Fair or poor self-rated health status among adults
+31,LACKTRPT,Lack of reliable transportation in the past 12 months among adults,Health-Related Social Needs,Other,%,DS001,Lack of reliable transportation in the past 12 months among adults
+32,CANCER,Cancer (non-skin) or melanoma among adults,Health Outcomes,Disease outcome,%,DS001,Cancer (non-skin) or melanoma among adults
+33,EMOTIONSPT,Lack of social and emotional support among adults,Health-Related Social Needs,Other,%,DS001,Lack of social and emotional support among adults
+34,DENTAL,Visited dentist or dental clinic in the past year among adults,Prevention,Prevention measure,%,DS001,Visited dentist or dental clinic in the past year among adults
+35,LONELINESS,Loneliness among adults,Health-Related Social Needs,Other,%,DS001,Loneliness among adults
+36,FOODSTAMP,Received food stamps in the past 12 months among adults,Health-Related Social Needs,Other,%,DS001,Received food stamps in the past 12 months among adults
+37,ACCESS2,Current lack of health insurance among adults aged 18-64 years,Prevention,Prevention measure,%,DS001,Current lack of health insurance among adults aged 18-64 years
+38,COGNITION,Cognitive disability among adults,Disability,Disability,%,DS001,Cognitive disability among adults
+39,CHOLSCREEN,Cholesterol screening among adults,Prevention,Prevention measure,%,DS001,Cholesterol screening among adults
+40,SLEEP,Short sleep duration among adults,Health Risk Behaviors,Behavioral risk factor,%,DS001,Short sleep duration among adults
+41,AST01,"Asthma mortality among all people, underlying cause",Asthma,Chronic disease indicator,Number,DS002,"Asthma mortality among all people, underlying cause"
+42,AST02,Current asthma among adults,Asthma,Chronic disease indicator,%,DS002,Current asthma among adults
+43,CAN07,"Invasive cancer (all sites combined), incidence",Cancer,Chronic disease indicator,Number,DS002,"Invasive cancer (all sites combined), incidence"
+44,CAN08,"Invasive cancer (all sites combined) mortality among all people, underlying cause",Cancer,Chronic disease indicator,Number,DS002,"Invasive cancer (all sites combined) mortality among all people, underlying cause"
+45,CAN09,Mammography use among women aged 50-74 years,Cancer,Chronic disease indicator,%,DS002,Mammography use among women aged 50-74 years
+46,CVD01,High blood pressure among adults,Cardiovascular Disease,Chronic disease indicator,%,DS002,High blood pressure among adults
+47,CVD08,"Coronary heart disease mortality among all people, underlying cause",Cardiovascular Disease,Chronic disease indicator,Number,DS002,"Coronary heart disease mortality among all people, underlying cause"
+48,DIA01,Diabetes among adults,Diabetes,Chronic disease indicator,%,DS002,Diabetes among adults
+49,DIS01,Adults with any disability,Disability,Chronic disease indicator,%,DS002,Adults with any disability
+50,HEA03,Frequent physical distress among adults,Health Status,Chronic disease indicator,%,DS002,Frequent physical distress among adults
+51,HEA06,Life expectancy at birth,Health Status,Chronic disease indicator,Years,DS002,Life expectancy at birth
+52,IMM01,Influenza vaccination among adults,Immunization,Chronic disease indicator,%,DS002,Influenza vaccination among adults
+53,MEN02,Depression among adults,Mental Health,Chronic disease indicator,%,DS002,Depression among adults
+54,ORH06,Visited dentist or dental clinic in the past year among adults,Oral Health,Chronic disease indicator,%,DS002,Visited dentist or dental clinic in the past year among adults
+55,NMED02,High school completion among adults aged 18-24,Non-Medical Factors,Chronic disease indicator,%,DS002,High school completion among adults aged 18-24
+56,NMED07,Lack of social and emotional support needed among adults,Non-Medical Factors,Chronic disease indicator,%,DS002,Lack of social and emotional support needed among adults
+57,NMED12,Routine checkup within the past year among adults,Non-Medical Factors,Chronic disease indicator,%,DS002,Routine checkup within the past year among adults
+58,ALC05,Binge drinking intensity among adults who binge drink,Alcohol,Chronic disease indicator,Number,DS002,Binge drinking intensity among adults who binge drink
+59,ALC01,Alcohol use among high school students,Alcohol,Chronic disease indicator,%,DS002,Alcohol use among high school students
+60,ALC04,Binge drinking frequency among adults who binge drink,Alcohol,Chronic disease indicator,Number,DS002,Binge drinking frequency among adults who binge drink
+61,ALC06,Binge drinking prevalence among adults,Alcohol,Chronic disease indicator,%,DS002,Binge drinking prevalence among adults
+62,ALC09,"Chronic liver disease mortality among all people, underlying cause",Alcohol,Chronic disease indicator,Number,DS002,"Chronic liver disease mortality among all people, underlying cause"
+63,ALC07,Binge drinking prevalence among high school students,Alcohol,Chronic disease indicator,%,DS002,Binge drinking prevalence among high school students
+64,ALC08,Per capita alcohol consumption among people aged 14 years and older,Alcohol,Chronic disease indicator,gallons,DS002,Per capita alcohol consumption among people aged 14 years and older
+65,ART01,Arthritis among adults,Arthritis,Chronic disease indicator,%,DS002,Arthritis among adults
+66,ART02,Activity limitation due to arthritis among adults with arthritis,Arthritis,Chronic disease indicator,%,DS002,Activity limitation due to arthritis among adults with arthritis
+67,ART03,Severe joint pain among adults with arthritis,Arthritis,Chronic disease indicator,%,DS002,Severe joint pain among adults with arthritis
+68,ART05,Physical inactivity among adults with arthritis,Arthritis,Chronic disease indicator,%,DS002,Physical inactivity among adults with arthritis
+69,ART04,Work limitation due to arthritis among adults aged 18-64 years with arthritis,Arthritis,Chronic disease indicator,%,DS002,Work limitation due to arthritis among adults aged 18-64 years with arthritis
+70,ART06,Received health care provider counseling for physical activity among adults with arthritis,Arthritis,Chronic disease indicator,%,DS002,Received health care provider counseling for physical activity among adults with arthritis
+71,ART07,Have taken an educational class to learn how to manage arthritis symptoms among adults with arthritis,Arthritis,Chronic disease indicator,%,DS002,Have taken an educational class to learn how to manage arthritis symptoms among adults with arthritis
+72,CAN03,"Cervical cancer mortality among all females, underlying cause",Cancer,Chronic disease indicator,Number,DS002,"Cervical cancer mortality among all females, underlying cause"
+73,CAN06,Colorectal cancer screening among adults aged 45-75 years,Cancer,Chronic disease indicator,%,DS002,Colorectal cancer screening among adults aged 45-75 years
+74,CAN05,"Prostate cancer mortality among all males, underlying cause",Cancer,Chronic disease indicator,Number,DS002,"Prostate cancer mortality among all males, underlying cause"
+75,CAN01,"Colon and rectum (colorectal) cancer mortality among all people, underlying cause",Cancer,Chronic disease indicator,Number,DS002,"Colon and rectum (colorectal) cancer mortality among all people, underlying cause"
+76,CAN02,"Breast cancer mortality among all females, underlying cause",Cancer,Chronic disease indicator,Number,DS002,"Breast cancer mortality among all females, underlying cause"
+77,CAN04,"Lung and bronchial cancer mortality among all people, underlying cause",Cancer,Chronic disease indicator,Number,DS002,"Lung and bronchial cancer mortality among all people, underlying cause"
+78,CHC01,Subjective cognitive decline among adults aged 45 years and older,Cognitive Health and Caregiving,Chronic disease indicator,%,DS002,Subjective cognitive decline among adults aged 45 years and older
+79,CHC03,Provided care for someone with dementia or other cognitive impairment in the past month among adults,Cognitive Health and Caregiving,Chronic disease indicator,%,DS002,Provided care for someone with dementia or other cognitive impairment in the past month among adults
+80,CHC04,Provided care for a friend or family member in the past month among adults,Cognitive Health and Caregiving,Chronic disease indicator,%,DS002,Provided care for a friend or family member in the past month among adults
+81,CHC02,Discussed symptoms of subjective cognitive decline with a health care professional among adults aged 45 years and older with subjective cognitive decline,Cognitive Health and Caregiving,Chronic disease indicator,%,DS002,Discussed symptoms of subjective cognitive decline with a health care professional among adults aged 45 years and older with subjective cognitive decline
+82,CKD01,Incidence of treated end-stage kidney disease,Chronic Kidney Disease,Chronic disease indicator,Number,DS002,Incidence of treated end-stage kidney disease
+83,COPD01,Chronic obstructive pulmonary disease among adults,Chronic Obstructive Pulmonary Disease,Chronic disease indicator,%,DS002,Chronic obstructive pulmonary disease among adults
+84,CVD03,High cholesterol among adults who have been screened,Cardiovascular Disease,Chronic disease indicator,%,DS002,High cholesterol among adults who have been screened
+85,COPD02,Current smoking among adults with chronic obstructive pulmonary disease,Chronic Obstructive Pulmonary Disease,Chronic disease indicator,%,DS002,Current smoking among adults with chronic obstructive pulmonary disease
+86,COPD03,"Hospitalization for chronic obstructive pulmonary disease as any diagnosis, Medicare-beneficiaries aged 65 years and older",Chronic Obstructive Pulmonary Disease,Chronic disease indicator,Number,DS002,"Hospitalization for chronic obstructive pulmonary disease as any diagnosis, Medicare-beneficiaries aged 65 years and older"
+87,COPD04,"Hospitalization for chronic obstructive pulmonary disease as principal diagnosis, Medicare-beneficiaries aged 65 years and older",Chronic Obstructive Pulmonary Disease,Chronic disease indicator,"cases per 1,000",DS002,"Hospitalization for chronic obstructive pulmonary disease as principal diagnosis, Medicare-beneficiaries aged 65 years and older"
+88,COPD05,"Chronic obstructive pulmonary disease mortality among adults aged 45 years and older, underlying cause",Chronic Obstructive Pulmonary Disease,Chronic disease indicator,Number,DS002,"Chronic obstructive pulmonary disease mortality among adults aged 45 years and older, underlying cause"
+89,CVD02,Taking medicine to control high blood pressure among adults with high blood pressure,Cardiovascular Disease,Chronic disease indicator,%,DS002,Taking medicine to control high blood pressure among adults with high blood pressure
+90,COPD06,"Chronic obstructive pulmonary disease mortality among adults aged 45 years and older, underlying or contributing cause",Chronic Obstructive Pulmonary Disease,Chronic disease indicator,Number,DS002,"Chronic obstructive pulmonary disease mortality among adults aged 45 years and older, underlying or contributing cause"
+91,CVD04,Taking medicine for high cholesterol among adults with high cholesterol,Cardiovascular Disease,Chronic disease indicator,%,DS002,Taking medicine for high cholesterol among adults with high cholesterol
+92,CVD06,"Hospitalization for heart failure as principal diagnosis, Medicare-beneficiaries aged 65 years and older",Cardiovascular Disease,Chronic disease indicator,"cases per 1,000",DS002,"Hospitalization for heart failure as principal diagnosis, Medicare-beneficiaries aged 65 years and older"
+93,CVD07,"Cerebrovascular disease (stroke) mortality among all people, underlying cause",Cardiovascular Disease,Chronic disease indicator,Number,DS002,"Cerebrovascular disease (stroke) mortality among all people, underlying cause"
+94,DIA02,Gestational diabetes among women with a recent live birth,Diabetes,Chronic disease indicator,%,DS002,Gestational diabetes among women with a recent live birth
+95,CVD09,"Diseases of the heart mortality among all people, underlying cause",Cardiovascular Disease,Chronic disease indicator,Number,DS002,"Diseases of the heart mortality among all people, underlying cause"
+96,DIA03,"Diabetes mortality among all people, underlying or contributing cause",Diabetes,Chronic disease indicator,Number,DS002,"Diabetes mortality among all people, underlying or contributing cause"
+97,HEA01,Fair or poor self-rated health status among adults,Health Status,Chronic disease indicator,%,DS002,Fair or poor self-rated health status among adults
+98,DIA04,"Diabetic ketoacidosis mortality among all people, underlying or contributing cause",Diabetes,Chronic disease indicator,Number,DS002,"Diabetic ketoacidosis mortality among all people, underlying or contributing cause"
+99,HEA02,Average recent physically unhealthy days among adults,Health Status,Chronic disease indicator,Number,DS002,Average recent physically unhealthy days among adults
+100,HEA04,Recent activity limitation among adults,Health Status,Chronic disease indicator,Number,DS002,Recent activity limitation among adults
+101,HEA05,2 or more chronic conditions among adults,Health Status,Chronic disease indicator,%,DS002,2 or more chronic conditions among adults
+102,MEN04,Average mentally unhealthy days among adults,Mental Health,Chronic disease indicator,Number,DS002,Average mentally unhealthy days among adults
+103,ORH01,No teeth lost among adults aged 18-64 years,Oral Health,Chronic disease indicator,%,DS002,No teeth lost among adults aged 18-64 years
+104,IMM02,Influenza vaccination among adults 18-64 who are at increased risk,Immunization,Chronic disease indicator,%,DS002,Influenza vaccination among adults 18-64 who are at increased risk
+105,IMM03,Pneumococcal vaccination among adults aged 18-64 years who are at increased risk,Immunization,Chronic disease indicator,%,DS002,Pneumococcal vaccination among adults aged 18-64 years who are at increased risk
+106,IMM04,Pneumococcal vaccination among adults aged 65 years and older,Immunization,Chronic disease indicator,%,DS002,Pneumococcal vaccination among adults aged 65 years and older
+107,MEN01,Current poor mental health among high school students,Mental Health,Chronic disease indicator,%,DS002,Current poor mental health among high school students
+108,MEN05,Frequent mental distress among adults,Mental Health,Chronic disease indicator,%,DS002,Frequent mental distress among adults
+109,NPW06,No leisure-time physical activity among adults,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,No leisure-time physical activity among adults
+110,MAT01,Postpartum checkup among women with a recent live birth,Maternal Health,Chronic disease indicator,%,DS002,Postpartum checkup among women with a recent live birth
+111,MEN03,Postpartum depressive symptoms among women with a recent live birth,Mental Health,Chronic disease indicator,%,DS002,Postpartum depressive symptoms among women with a recent live birth
+112,NPW01,Consumed fruit less than one time daily among high school students,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Consumed fruit less than one time daily among high school students
+113,NPW04,Consumed vegetables less than one time daily among adults,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Consumed vegetables less than one time daily among adults
+114,NPW05,Consumed regular soda at least one time daily among high school students,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Consumed regular soda at least one time daily among high school students
+115,NPW02,Consumed fruit less than one time daily among adults,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Consumed fruit less than one time daily among adults
+116,NPW03,Consumed vegetables less than one time daily among high school students,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Consumed vegetables less than one time daily among high school students
+117,NPW14,Obesity among adults,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Obesity among adults
+118,NPW13,Obesity among high school students,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Obesity among high school students
+119,NPW08,Met aerobic physical activity guideline among high school students,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Met aerobic physical activity guideline among high school students
+120,NPW09,"Met aerobic physical activity guideline for substantial health benefits, adults","Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,"Met aerobic physical activity guideline for substantial health benefits, adults"
+121,NPW07,Children and adolescents aged 6-13 years meeting aerobic physical activity guideline,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Children and adolescents aged 6-13 years meeting aerobic physical activity guideline
+122,NPW10,Infants who were breastfed at 12 months,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Infants who were breastfed at 12 months
+123,NPW12,Obesity among WIC children aged 2 to 4 years,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Obesity among WIC children aged 2 to 4 years
+124,NPW11,Infants who were exclusively breastfed through 6 months,"Nutrition, Physical Activity, and Weight Status",Chronic disease indicator,%,DS002,Infants who were exclusively breastfed through 6 months
+125,ORH03,All teeth lost among adults aged 65 years and older,Oral Health,Chronic disease indicator,%,DS002,All teeth lost among adults aged 65 years and older
+126,ORH02,Six or more teeth lost among adults aged 65 years and older,Oral Health,Chronic disease indicator,%,DS002,Six or more teeth lost among adults aged 65 years and older
+127,SLP03,Short sleep duration among adults,Sleep,Chronic disease indicator,%,DS002,Short sleep duration among adults
+128,TOB04,Current cigarette smoking among adults,Tobacco,Chronic disease indicator,%,DS002,Current cigarette smoking among adults
+129,ORH04,Visited dentist or other oral health care provider in the past 12 months among children and adolescents aged 1-17 years,Oral Health,Chronic disease indicator,%,DS002,Visited dentist or other oral health care provider in the past 12 months among children and adolescents aged 1-17 years
+130,NMED01,Living below 150% of the poverty threshold among all people,Non-Medical Factors,Chronic disease indicator,%,DS002,Living below 150% of the poverty threshold among all people
+131,ORH07,Preventive dental care in the 12 months before pregnancy among women with a recent live birth,Oral Health,Chronic disease indicator,%,DS002,Preventive dental care in the 12 months before pregnancy among women with a recent live birth
+132,NMED05,"Unable to pay mortgage, rent, or utility bills in the past 12 months among adults",Non-Medical Factors,Chronic disease indicator,%,DS002,"Unable to pay mortgage, rent, or utility bills in the past 12 months among adults"
+133,ORH05,Receipt of evidence-based preventive dental services in the past 12 months among children and adolescents aged 1-17 years,Oral Health,Chronic disease indicator,%,DS002,Receipt of evidence-based preventive dental services in the past 12 months among children and adolescents aged 1-17 years
+134,NMED03,No broadband internet subscription among households,Non-Medical Factors,Chronic disease indicator,%,DS002,No broadband internet subscription among households
+135,NMED04,Food insecure in the past 12 months among households,Non-Medical Factors,Chronic disease indicator,%,DS002,Food insecure in the past 12 months among households
+136,TOB03,Current smokeless tobacco use among high school students,Tobacco,Chronic disease indicator,%,DS002,Current smokeless tobacco use among high school students
+137,TOB06,Quit attempts in the past year among adult current smokers,Tobacco,Chronic disease indicator,%,DS002,Quit attempts in the past year among adult current smokers
+138,TOB05,Cigarette smoking during pregnancy among women with a recent live birth,Tobacco,Chronic disease indicator,%,DS002,Cigarette smoking during pregnancy among women with a recent live birth
+139,NMED06,Lack of reliable transportation in the past 12 months among adults,Non-Medical Factors,Chronic disease indicator,%,DS002,Lack of reliable transportation in the past 12 months among adults
+140,NMED09,Lack of health insurance among adults aged 18-64 years,Non-Medical Factors,Chronic disease indicator,%,DS002,Lack of health insurance among adults aged 18-64 years
+141,NMED08,Unemployment rate among people 16 years and older in the labor force,Non-Medical Factors,Chronic disease indicator,%,DS002,Unemployment rate among people 16 years and older in the labor force
+142,SLP02,Short sleep duration among high school students,Sleep,Chronic disease indicator,%,DS002,Short sleep duration among high school students
+143,NMED11,Health insurance coverage after pregnancy among women with a recent live birth,Non-Medical Factors,Chronic disease indicator,%,DS002,Health insurance coverage after pregnancy among women with a recent live birth
+144,NMED10,Health insurance coverage in the month before pregnancy among women with a recent live birth,Non-Medical Factors,Chronic disease indicator,%,DS002,Health insurance coverage in the month before pregnancy among women with a recent live birth
+145,SLP01,Short sleep duration among children aged 4 months to 14 years,Sleep,Chronic disease indicator,%,DS002,Short sleep duration among children aged 4 months to 14 years
+146,TOB02,Current electronic vapor product use among high school students,Tobacco,Chronic disease indicator,%,DS002,Current electronic vapor product use among high school students
+147,TOB01,Current tobacco use of any tobacco product among high school students,Tobacco,Chronic disease indicator,%,DS002,Current tobacco use of any tobacco product among high school students
+148,TOB07,"Proportion of the population protected by a comprehensive smoke-free policy prohibiting smoking in all indoor areas of workplaces and public places, including restaurants and bars",Tobacco,Chronic disease indicator,%,DS002,"Proportion of the population protected by a comprehensive smoke-free policy prohibiting smoking in all indoor areas of workplaces and public places, including restaurants and bars"

@@ -1,0 +1,87 @@
+---
+title: Part IV - end-to-end business workflow
+---
+flowchart LR
+    subgraph SRC["1. SOURCE"]
+        direction TB
+        S1["Public statistical sources<br/>CDC PLACES, CHR&amp;R, Census ACS"]
+        S2["DS010 unstructured report<br/>(PDF, 18 pages)"]
+    end
+
+    subgraph LAKE["2. DATA LAKE - four zones"]
+        direction TB
+        L1["raw<br/><i>immutable, versioned</i>"]
+        L2[processed]
+        L3[curated]
+        L4["metadata<br/><i>catalogue, lineage, checksums</i>"]
+    end
+
+    subgraph PIPE["3. DATA-DRIVEN MODULE"]
+        direction TB
+        M1["Source monitor<br/><i>SHA-256 comparison</i>"]
+        M2{"Checksum<br/>changed?"}
+        M3["Preserve new raw version<br/>register DATA_ASSET"]
+        M4["Extract, chunk, TF-IDF, K-means"]
+        M5{"Pipeline<br/>succeeded?"}
+        M6["ML_RUN = Completed<br/><i>new model becomes active</i>"]
+        M7["ML_RUN = Failed<br/><i>previous model stays active</i>"]
+    end
+
+    subgraph GOV["4. HUMAN REVIEW"]
+        direction TB
+        G1["Analyst reviews cluster<br/><i>named reviewer required</i>"]
+        G2["Approve interpretation"]
+        G3["Map cluster to HEALTH_INDICATOR<br/><i>ML_CLUSTER_INDICATOR_MAP</i>"]
+    end
+
+    subgraph ODS["5. POSTGRESQL ODS"]
+        direction TB
+        P1["26 Part II tables"]
+        P2["6 quote workflow tables"]
+        P3["4 ML governance tables"]
+        P4["MV_ACCOUNT_REGIONAL_HEALTH_PROFILE"]
+    end
+
+    subgraph APP["6. APPLICATION - quote to policy"]
+        direction TB
+        A1["Create quote"]
+        A2["Add coverage"]
+        A3["Submit / rate / present"]
+        A4["View regional research context<br/><i>not a rating input</i>"]
+        A5["Authorize payment"]
+        A6["Accept quote"]
+        A7["Issue policy<br/><i>one transaction</i>"]
+    end
+
+    subgraph OUT["7. BUSINESS REVIEW"]
+        direction TB
+        O1["CONTRACT + benefits + premiums"]
+        O2["Portfolio and regional research"]
+        O3["BigQuery cloud analytics"]
+    end
+
+    S1 --> L1
+    S2 --> L1
+    L1 --> L2 --> L3 --> ODS
+    L1 -.checksum.-> L4
+    L4 --> M1
+    M1 --> M2
+    M2 -- no --> M1
+    M2 -- yes --> M3 --> M4 --> M5
+    M5 -- yes --> M6
+    M5 -- no --> M7
+    M6 --> G1 --> G2 --> G3 --> P3
+    M3 --> L1
+    P3 --> P4
+    P1 --> P4
+    ODS --> APP
+    A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7
+    P4 --> A4
+    A7 --> O1 --> O2
+    L3 --> O3
+    P3 --> O3
+
+    classDef gate fill:#fdf1dc,stroke:#8a5a00,color:#5a3b00
+    classDef governed fill:#f0eaf9,stroke:#5b3d8c,color:#3d2a60
+    class M2,M5 gate
+    class G1,G2,G3,A4 governed

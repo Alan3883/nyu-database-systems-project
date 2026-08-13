@@ -1,0 +1,52 @@
+# =====================================================================
+# Part IV - repository hygiene
+#
+# Two rules drive this file:
+#   1. No credential, key, or token is ever committed.
+#   2. No large or regenerable file is committed. Everything excluded
+#      here can be rebuilt by a script in part4/scripts or fetched again
+#      from its public source.
+# =====================================================================
+
+# --- credentials and secrets -----------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*_key.json
+*-key.json
+service-account*.json
+credentials*.json
+.pgpass
+
+# --- large derived files ----------------------------------------------
+# Retraining fixtures are derived from the DS010 report and run to ~21 MB.
+# part4/tests/fixtures/make_fixtures.py rebuilds them.
+tests/fixtures/*.pdf
+
+# --- build artefacts and caches ---------------------------------------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+node_modules/
+
+# --- runtime output ----------------------------------------------------
+logs/*.log
+logs/*.out
+*.pid
+
+# --- packaging ---------------------------------------------------------
+# The submission archive is built by a script and is not source. The
+# report itself is committed.
+submission/*.zip
+submission/*/
+
+# --- OS noise ----------------------------------------------------------
+.DS_Store
+.vscode/
+.idea/

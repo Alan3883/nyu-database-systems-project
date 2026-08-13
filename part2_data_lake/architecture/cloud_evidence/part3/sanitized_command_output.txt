@@ -1,0 +1,79 @@
+===== Part III cloud analytics (BigQuery Sandbox) =====
+Date: 2026-08-06T11:52:44Z
+Mode: BigQuery Sandbox, no Cloud Storage, no billing account required
+
+--- Step 1: BigQuery dataset ---
+Dataset part3_analytics already exists.
+
+--- Step 2: load tables from local files ---
+  geographic_area  <- curated/geographic_area.csv  (3196 data rows, autodetect)
+Upload complete.
+  health_indicator  <- curated/health_indicator.csv  (148 data rows, autodetect)
+Upload complete.
+  health_observation  <- curated/health_observation_sample.csv  (320 data rows, autodetect)
+Upload complete.
+  dataset_catalog  <- metadata/dataset_catalog.csv  (10 data rows, explicit schema)
+Upload complete.
+  data_asset  <- curated/data_asset.csv  (10 data rows, autodetect)
+Upload complete.
+  ml_cluster_assignments  <- ml/outputs/cluster_assignments.csv  (32 data rows, autodetect)
+Upload complete.
+  ml_cluster_summary  <- ml/outputs/cluster_summary.csv  (6 data rows, autodetect)
+Upload complete.
+
+--- Step 3: table inventory ---
+TableName,RowCount
+geographic_area,3196
+health_indicator,148
+health_observation,320
+dataset_catalog,10
+data_asset,10
+ml_cluster_assignments,32
+ml_cluster_summary,6
+
+--- Step 4: analytical queries ---
+
+QUERY 1: Indicators and observations by geographic level
+GeographyType,geographies,distinct_indicators,observations
+County,3144,40,320
+State,51,0,0
+Nation,1,0,0
+
+QUERY 2: Health indicators summarized by state
+StateCode,IndicatorName,FactorCategory,county_observations,avg_value,min_value,max_value
+OK,Cholesterol screening among adults,Prevention measure,2,85.2,84.3,86.1
+SC,Visits to doctor for routine checkup within the past year among adults,Prevention measure,2,81.9,81.4,82.4
+WA,Colorectal cancer screening among adults aged 45–75 years,Prevention measure,2,66.2,63.0,69.4
+GA,Loneliness among adults,Other,3,38.23,37.4,39.3
+MS,No leisure-time physical activity among adults,Behavioral risk factor,2,37.65,37.0,38.3
+TN,Depression among adults,Disease outcome,2,30.25,29.0,31.5
+GA,Lack of social and emotional support among adults,Other,2,28.05,27.5,28.6
+MS,Fair or poor self-rated health status among adults,Health status,2,26.7,25.4,28.0
+TX,No leisure-time physical activity among adults,Behavioral risk factor,2,25.45,24.1,26.8
+MN,Depression among adults,Disease outcome,2,24.2,23.1,25.3
+MI,Lack of social and emotional support among adults,Other,2,22.05,21.0,23.1
+
+QUERY 3: ML clusters with chunk counts and top terms
+ClusterID,SuggestedLabel,ChunkCount,verified_chunks,avg_distance,source_pages,HumanReviewed
+0,Narratives / Based / World,4,4,0.8005,3,false
+1,Funding / School / Counties,4,4,0.742,3,false
+2,Health Institute / Wisconsin Population / University,7,7,0.8079,5,false
+3,Income / Renters / Low Income,4,4,0.7386,3,false
+4,Public Health / Public / Organizing,4,4,0.7312,3,false
+5,Rules / Conditions / People,9,9,0.8498,6,false
+
+QUERY 4: Dataset lineage and licence inventory
+DatasetID,DatasetName,SourceOrganization,DataClassification,GeographicLevel,License,asset_count,total_bytes
+DS001,"CDC PLACES County Data, 2025 release",Centers for Disease Control and Prevention,Structured,County,Public domain (U.S. government work),1,53396904
+DS002,U.S. Chronic Disease Indicators,Centers for Disease Control and Prevention,Structured,State/Territory,Public domain (U.S. government work),1,111334061
+DS003,2025 County Health Release National Data,County Health Rankings & Roadmaps,Structured,County/State/National,Public use with attribution (CHR&R terms),1,16002176
+DS004,2025 CHR CSV Analytic Data,County Health Rankings & Roadmaps,Structured,County/State,Public use with attribution (CHR&R terms),1,13085361
+DS005,2025 County Health Rankings Data Dictionary,County Health Rankings & Roadmaps,Semi-structured,Documentation,Public use with attribution (CHR&R terms),1,29136
+DS006,2024 ACS 5-Year Subject Table S0101: Age and Sex,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,10406154
+DS007,2024 ACS 5-Year Subject Table S1901: Income,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,3215603
+DS008,2024 ACS 5-Year Subject Table S1701: Poverty,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,7796442
+DS009,2024 ACS 5-Year Subject Table S2701: Health Insurance,U.S. Census Bureau,Structured,County,Public domain (U.S. government work),1,10879359
+DS010,2025 County Health Rankings & Roadmaps Report,County Health Rankings & Roadmaps,Unstructured,National,Public use with attribution (CHR&R terms),1,14580902
+
+===== Cloud analytics complete =====
+Evidence written to architecture/cloud_evidence/part3/

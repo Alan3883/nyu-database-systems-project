@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Regional research context{% endblock %}
+{% block content %}
+
+<h2>Regional research context</h2>
+
+<div class="notice">
+  <strong>Research context — not a rating input.</strong> {{ disclaimer }}
+  Values are county-level public aggregates published by CDC, County Health
+  Rankings, and the U.S. Census. No individual health record, inferred medical
+  status, or customer-level prediction is shown or stored.
+</div>
+
+<div class="grid cols-2">
+  <div class="panel">
+    <h3>Accounts with a regional profile</h3>
+    <table>
+      <thead><tr><th>Account</th><th>County</th><th>FIPS</th><th class="num">Indicators</th></tr></thead>
+      <tbody>
+        {% for a in accounts %}
+        <tr>
+          <td><a href="{{ url_for('regional.account_context', account_id=a.account_id) }}">{{ a.account_name }}</a></td>
+          <td class="small">{{ a.geography_name or '—' }}</td>
+          <td class="mono small">{{ a.county_fips or '—' }}</td>
+          <td class="num">{{ a.indicators }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3>Portfolio indicator averages</h3>
+    <table>
+      <thead><tr><th>Indicator</th><th>Category</th><th class="num">Average</th>
+        <th class="num">Counties</th></tr></thead>
+      <tbody>
+        {% for p in portfolio %}
+        <tr>
+          <td class="small">{{ p.indicator_name }}</td>
+          <td class="small muted">{{ p.factor_category or '—' }}</td>
+          <td class="num">{{ p.avg_value }}</td>
+          <td class="num">{{ p.counties }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="small muted">Aggregated in PostgreSQL from
+      <span class="mono">MV_ACCOUNT_REGIONAL_HEALTH_PROFILE</span>, the Part III
+      materialized view over the five-table hybrid join.</p>
+  </div>
+</div>
+
+{% if rows is not none %}
+<div class="panel">
+  <h3>Account {{ account_id }} — regional profile</h3>
+  {% if run %}
+  <p class="small muted">Approved themes come from ML_RUN {{ run.ml_run_id }}
+    ({{ run.model_name }} {{ run.model_version }}), {{ review.reviewed_clusters }} of
+    {{ review.total_clusters }} clusters reviewed.</p>
+  {% endif %}
+  <table>
+    <thead><tr><th>Indicator</th><th>Category</th><th class="num">Value</th><th>Year</th>
+      <th>County</th><th>Source</th><th>Approved ML theme</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.indicator_name }}</td>
+        <td class="small muted">{{ r.factor_category or r.disease_category or '—' }}</td>
+        <td class="num">{{ '%.2f'|format(r.measure_value or 0) }} <span class="small muted">{{ r.unit or '' }}</span></td>
+        <td>{{ r.observation_year or '—' }}</td>
+        <td class="small">{{ r.geography_name or '—' }}<div class="mono small muted">FIPS {{ r.county_fips or '—' }}</div></td>
+        <td class="mono small">{{ r.source_dataset_id or '—' }}</td>
+        <td>
+          {% if r.approved_theme %}
+            <span class="tag research">approved insight</span>
+            <div class="small">{{ r.approved_theme }}</div>
+            <div class="small muted">cluster {{ r.theme_cluster_id }}, approved by {{ r.theme_approved_by }}</div>
+          {% else %}<span class="small muted">—</span>{% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="muted">No regional profile for this account.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}

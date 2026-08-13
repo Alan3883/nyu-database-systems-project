@@ -1,0 +1,73 @@
+ClusterID,Rank,Term,CentroidWeight
+0,1,narratives,0.19501
+0,2,based,0.122328
+0,3,world,0.103116
+0,4,ways,0.099363
+0,5,worldviews,0.091675
+0,6,values,0.08308
+0,7,patterns,0.082278
+0,8,structural determinants,0.081869
+0,9,structural,0.080883
+0,10,practices,0.080692
+0,11,stories,0.079523
+0,12,race,0.078512
+1,1,funding,0.155768
+1,2,school,0.153216
+1,3,counties,0.139678
+1,4,region,0.13639
+1,5,scores,0.126397
+1,6,schools,0.118652
+1,7,black,0.101737
+1,8,education,0.095884
+1,9,average,0.094154
+1,10,belt region,0.090469
+1,11,defined,0.088614
+1,12,national,0.086928
+2,1,health institute,0.126781
+2,2,wisconsin population,0.126781
+2,3,university,0.126781
+2,4,institute,0.126781
+2,5,wisconsin,0.126781
+2,6,university wisconsin,0.126781
+2,7,population,0.120143
+2,8,population health,0.120143
+2,9,thrive,0.101005
+2,10,chr,0.094325
+2,11,model,0.092507
+2,12,work,0.088926
+3,1,income,0.171898
+3,2,renters,0.144117
+3,3,low income,0.127571
+3,4,low,0.119514
+3,5,housing,0.114617
+3,6,income renters,0.101165
+3,7,american,0.100759
+3,8,american community,0.098694
+3,9,survey,0.098694
+3,10,community survey,0.098694
+3,11,data,0.097848
+3,12,cost,0.093927
+4,1,public health,0.197823
+4,2,public,0.176782
+4,3,organizing,0.130442
+4,4,community organizing,0.119514
+4,5,reform,0.114798
+4,6,goals,0.103406
+4,7,political,0.101221
+4,8,building,0.098701
+4,9,building power,0.098701
+4,10,economic,0.098701
+4,11,social,0.095775
+4,12,issues,0.094651
+5,1,rules,0.127609
+5,2,conditions,0.119552
+5,3,people,0.100871
+5,4,power,0.086765
+5,5,community conditions,0.083298
+5,6,societal rules,0.080361
+5,7,societal,0.080361
+5,8,community,0.079173
+5,9,laws,0.075483
+5,10,change,0.070635
+5,11,communities,0.065174
+5,12,applied,0.059676

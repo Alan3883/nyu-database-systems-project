@@ -1,0 +1,114 @@
+# =====================================================================
+# NYU CSCI-GA.2433 Database Systems - course project
+#
+# What belongs in the repository: source, schema, models, documentation,
+# diagrams, reports, and the evidence the report cites.
+#
+# What does not: credentials, re-downloadable public data, packaging
+# output, run logs, caches, and personal working notes. Everything
+# excluded here is either regenerable by a script in this repository or
+# has no value to a reader of the project.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 1. Credentials. Never committed, under any circumstances.
+# ---------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*_key.json
+*-key.json
+service-account*.json
+credentials*.json
+gcloud-*.json
+.pgpass
+
+# ---------------------------------------------------------------------
+# 2. Raw and intermediate data: 300 MB of public downloads.
+#
+# Restore with:
+#   cd part2_data_lake
+#   python3 scripts/download_part2_data.py
+#   python3 scripts/01_inventory_data.py
+#   python3 scripts/02_profile_data.py
+#   python3 scripts/03_build_curated_data.py
+#
+# metadata/download_manifest.json records each source URL and its
+# expected SHA-256, so a restored file can be verified against the bytes
+# the project was built on. The small curated/ and metadata/ outputs the
+# loaders actually need are committed.
+# ---------------------------------------------------------------------
+part2_data_lake/raw/
+part2_data_lake/processed/
+part2_data_lake/sample_data/
+
+# Retraining fixtures, ~21 MB, derived from the DS010 report.
+# Rebuild with: python3 part4/tests/fixtures/make_fixtures.py
+part4/tests/fixtures/*.pdf
+
+# ---------------------------------------------------------------------
+# 3. Packaging output. Archives are built by scripts; the reports they
+#    contain are committed on their own.
+# ---------------------------------------------------------------------
+part2_data_lake/submission/
+part4/submission/
+
+# ---------------------------------------------------------------------
+# 4. Run logs and personal working notes. Neither is project software.
+# ---------------------------------------------------------------------
+logs/
+*.log
+*.out
+*.pid
+part2_data_lake/project_work/
+part2_data_lake/validation/
+
+# ---------------------------------------------------------------------
+# 5. Not part of this project.
+# ---------------------------------------------------------------------
+HW/
+Lecture/
+Mo_p3_su26/
+
+# ---------------------------------------------------------------------
+# 6. Caches and editor or OS noise.
+# ---------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+.venv/
+venv/
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ---------------------------------------------------------------------
+# 7. Implementation diaries, planning notes, and inventories.
+#
+# These were working aids while the parts were being built. The design
+# decisions worth keeping are in docs/design_decisions.md and
+# docs/limitations.md; the requirement mappings that matter are in the
+# traceability matrices. A reader of the finished project needs neither
+# the command log nor the pre-work inventory.
+# ---------------------------------------------------------------------
+part2_data_lake/docs/execution_log.md
+part2_data_lake/docs/part3_implementation_plan.md
+part2_data_lake/docs/part3_repository_inventory.md
+part2_data_lake/part3/
+
+# A restated copy of the assignment brief is not project software.
+**/PART3_REQUIREMENTS.md
+
+# The Part II report is committed as .docx and .md; the PDF is the same
+# document in a third format.
+part2_data_lake/report/Project_Part2_Report.pdf
+
+# Word lock files
+~$*

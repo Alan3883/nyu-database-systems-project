@@ -1,0 +1,114 @@
+{
+  "model_name": "ds010_theme_discovery",
+  "model_version": "1.0.0",
+  "algorithm": "TFIDF+KMeans",
+  "random_seed": 42,
+  "selected_k": 6,
+  "vocabulary_size": 520,
+  "training_dataset_id": "DS010",
+  "silhouette_score": 0.121227,
+  "davies_bouldin_score": 2.285536,
+  "n_chunks": 32,
+  "trained_at": "2026-08-06T01:31:08.630791+00:00",
+  "python_version": "3.13.9",
+  "sklearn_version": "1.9.0",
+  "numpy_version": "2.5.1",
+  "configuration": {
+    "model": {
+      "name": "ds010_theme_discovery",
+      "version": "1.0.0",
+      "algorithm": "TFIDF+KMeans",
+      "random_seed": 42
+    },
+    "input": {
+      "dataset_id": "DS010",
+      "asset_type": "unstructured document",
+      "fallback_pdf_path": "raw/unstructured_documents/chr_2025_national_report.pdf",
+      "metadata_catalog": "metadata/dataset_catalog.csv",
+      "data_asset_csv": "curated/data_asset.csv",
+      "download_manifest": "metadata/download_manifest.json",
+      "verify_checksum": true
+    },
+    "chunking": {
+      "strategy": "paragraph_aware",
+      "target_words": 110,
+      "min_words": 35,
+      "max_words": 220,
+      "preserve_page_numbers": true,
+      "drop_empty_chunks": true
+    },
+    "preprocessing": {
+      "lowercase": true,
+      "strip_running_headers": true,
+      "header_patterns": [
+        "www\\.countyhealthrankings\\.org",
+        "^\\s*\\d+\\s*\\|",
+        "March 2025",
+        "2025 REPORT"
+      ],
+      "normalize_whitespace": true,
+      "min_token_length": 3,
+      "protected_terms": [
+        "health",
+        "insurance",
+        "income",
+        "housing",
+        "rural",
+        "urban",
+        "poverty",
+        "care",
+        "access",
+        "community",
+        "equity",
+        "coverage",
+        "population",
+        "county"
+      ]
+    },
+    "features": {
+      "vectorizer": "tfidf",
+      "ngram_range": [
+        1,
+        2
+      ],
+      "min_df": 2,
+      "max_df": 0.8,
+      "max_features": 3000,
+      "sublinear_tf": true,
+      "stop_words": "english"
+    },
+    "clustering": {
+      "algorithm": "kmeans",
+      "candidate_k": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "selected_k": null,
+      "n_init": 25,
+      "max_iter": 500,
+      "min_cluster_size": 4,
+      "parsimony_tolerance": 0.01
+    },
+    "output": {
+      "top_terms_per_cluster": 12,
+      "representative_chunks_per_cluster": 3,
+      "svd_components": 2,
+      "outputs_dir": "ml/outputs",
+      "models_dir": "ml/models"
+    }
+  },
+  "intended_use": "Exploratory theme discovery over one public health report to support insurance product research and regional portfolio review.",
+  "prohibited_use": [
+    "Individual underwriting or eligibility decisions",
+    "Premium or rate setting",
+    "Customer-level risk scoring",
+    "Medical diagnosis or clinical advice",
+    "Any use treating regional aggregates as personal health data"
+  ],
+  "requires_human_review": true
+}

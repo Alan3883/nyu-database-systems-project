@@ -1,0 +1,16 @@
+SourceDatasetID,SourceFile,SourceZone,Transformation,OutputFile,OutputZone,Script
+DS001,raw/cdc_places_county/places_county_2025.csv,raw,Standardize column names and zero-pad FIPS,processed/cdc_places_county_clean.csv,processed,03_build_curated_data.py
+DS001,raw/cdc_places_county/places_county_2025.csv,raw,Build nation/state/county geography,curated/geographic_area.csv,curated,03_build_curated_data.py
+DS001,raw/cdc_places_county/places_county_2025.csv,raw,Extract distinct measures,curated/health_indicator.csv,curated,03_build_curated_data.py
+DS002,raw/cdc_chronic_disease_indicators/us_chronic_disease_indicators.csv,raw,Extract distinct questions,curated/health_indicator.csv,curated,03_build_curated_data.py
+DS001,raw/cdc_places_county/places_county_2025.csv,raw,Sample crude-prevalence rows by measure (seed 42),curated/health_observation_sample.csv,curated,03_build_curated_data.py
+DS001-DS010,metadata/dataset_catalog.csv,metadata,Copy dataset metadata rows,curated/dataset.csv,curated,03_build_curated_data.py
+DS001-DS010,metadata/file_inventory.csv,metadata,Map raw files to datasets,curated/data_asset.csv,curated,03_build_curated_data.py
+DS001,curated/*.csv,curated,Copy small samples for submission,sample_data/,sample_data,05_create_submission_samples.py
+DS010,raw/unstructured_documents/chr_2025_national_report.pdf,raw,Store official report unchanged; record checksum,curated/data_asset.csv,curated,03_build_curated_data.py
+DS010,raw/unstructured_documents/chr_2025_national_report.pdf,raw,Extract first 3 pages as excerpt sample,sample_data/sample_chr_2025_report_excerpt.pdf,sample_data,05_create_submission_samples.py
+DS010,raw/unstructured_documents/chr_2025_national_report.pdf,raw,Extract text and build 32 paragraph chunks (seed 42),ml/outputs/ds010_chunks.csv,ml/outputs,ml.src.run_pipeline
+DS010,ml/outputs/ds010_chunks.csv,ml/outputs,TF-IDF then K-means K=6,ml/outputs/cluster_assignments.csv,ml/outputs,ml.src.run_pipeline
+DS010,ml/outputs/cluster_assignments.csv,ml/outputs,Load into PostgreSQL ML governance tables,postgres:DOCUMENT_CHUNK+ML_CLUSTER_RESULT,database,load_ml_results_to_postgres.py
+DS001-DS010,curated/*.csv,curated,Load into PostgreSQL hybrid tables,postgres:GEOGRAPHIC_AREA+HEALTH_OBSERVATION,database,load_curated_to_postgres.py
+DS001-DS010,postgres hybrid tables,database,Pre-join five-table hybrid path,postgres:MV_ACCOUNT_REGIONAL_HEALTH_PROFILE,database,05_materialized_views.sql

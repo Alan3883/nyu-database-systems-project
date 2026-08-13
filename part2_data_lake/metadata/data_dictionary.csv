@@ -1,0 +1,62 @@
+DatasetID,DatasetName,ColumnName,NonNullCount,NullCount,SampleValue,ColumnsCapped
+DS001,CDC PLACES County 2025,Year,229298,0,2023,no
+DS001,CDC PLACES County 2025,StateAbbr,229298,0,AR,no
+DS001,CDC PLACES County 2025,StateDesc,229298,0,Arkansas,no
+DS001,CDC PLACES County 2025,LocationName,229218,80,Drew,no
+DS001,CDC PLACES County 2025,DataSource,229298,0,BRFSS,no
+DS001,CDC PLACES County 2025,Category,229298,0,Health Outcomes,no
+DS001,CDC PLACES County 2025,Measure,229298,0,Arthritis among adults,no
+DS001,CDC PLACES County 2025,Data_Value_Unit,229298,0,%,no
+DS001,CDC PLACES County 2025,Data_Value_Type,229298,0,Crude prevalence,no
+DS001,CDC PLACES County 2025,Data_Value,229232,66,29.9,no
+DS001,CDC PLACES County 2025,Data_Value_Footnote_Symbol,80,229218,#,no
+DS001,CDC PLACES County 2025,Data_Value_Footnote,80,229218,The estimates are based on 39 states and DC.,no
+DS001,CDC PLACES County 2025,Low_Confidence_Limit,229232,66,26.6,no
+DS001,CDC PLACES County 2025,High_Confidence_Limit,229232,66,33.3,no
+DS001,CDC PLACES County 2025,TotalPopulation,229298,0,16945,no
+DS001,CDC PLACES County 2025,TotalPop18plus,229298,0,13230,no
+DS001,CDC PLACES County 2025,LocationID,229298,0,05043,no
+DS001,CDC PLACES County 2025,CategoryID,229298,0,HLTHOUT,no
+DS001,CDC PLACES County 2025,MeasureId,229298,0,ARTHRITIS,no
+DS001,CDC PLACES County 2025,DataValueTypeID,229298,0,CrdPrv,no
+DS001,CDC PLACES County 2025,Short_Question_Text,229298,0,Arthritis,no
+DS001,CDC PLACES County 2025,Geolocation,229218,80,POINT (-91.7196579038053 33.5894113647675),no
+DS002,US Chronic Disease Indicators,YearStart,398793,0,2020,no
+DS002,US Chronic Disease Indicators,YearEnd,398793,0,2020,no
+DS002,US Chronic Disease Indicators,LocationAbbr,398793,0,AR,no
+DS002,US Chronic Disease Indicators,LocationDesc,398793,0,Arkansas,no
+DS002,US Chronic Disease Indicators,DataSource,398793,0,NVSS,no
+DS002,US Chronic Disease Indicators,Topic,398793,0,Asthma,no
+DS002,US Chronic Disease Indicators,Question,398793,0,"Asthma mortality among all people, underlying cause",no
+DS002,US Chronic Disease Indicators,Response,0,398793,,no
+DS002,US Chronic Disease Indicators,DataValueUnit,398793,0,Number,no
+DS002,US Chronic Disease Indicators,DataValueType,398793,0,Number,no
+DS002,US Chronic Disease Indicators,DataValue,272036,126757,20,no
+DS002,US Chronic Disease Indicators,DataValueAlt,272036,126757,20,no
+DS002,US Chronic Disease Indicators,DataValueFootnoteSymbol,128750,270043,*,no
+DS002,US Chronic Disease Indicators,DataValueFootnote,128750,270043,No data available,no
+DS002,US Chronic Disease Indicators,LowConfidenceLimit,244085,154708,7.2,no
+DS002,US Chronic Disease Indicators,HighConfidenceLimit,244085,154708,9,no
+DS002,US Chronic Disease Indicators,StratificationCategory1,398793,0,Sex,no
+DS002,US Chronic Disease Indicators,Stratification1,398793,0,Female,no
+DS002,US Chronic Disease Indicators,StratificationCategory2,0,398793,,no
+DS002,US Chronic Disease Indicators,Stratification2,0,398793,,no
+DS002,US Chronic Disease Indicators,StratificationCategory3,0,398793,,no
+DS002,US Chronic Disease Indicators,Stratification3,0,398793,,no
+DS002,US Chronic Disease Indicators,Geolocation,391314,7479,POINT (-92.27449074 34.74865012400045),no
+DS002,US Chronic Disease Indicators,LocationID,398793,0,05,no
+DS002,US Chronic Disease Indicators,TopicID,398793,0,AST,no
+DS002,US Chronic Disease Indicators,QuestionID,398793,0,AST01,no
+DS002,US Chronic Disease Indicators,ResponseID,0,398793,,no
+DS002,US Chronic Disease Indicators,DataValueTypeID,398793,0,NMBR,no
+DS002,US Chronic Disease Indicators,StratificationCategoryID1,398793,0,SEX,no
+DS002,US Chronic Disease Indicators,StratificationID1,398793,0,SEXF,no
+DS002,US Chronic Disease Indicators,StratificationCategoryID2,0,398793,,no
+DS002,US Chronic Disease Indicators,StratificationID2,0,398793,,no
+DS002,US Chronic Disease Indicators,StratificationCategoryID3,0,398793,,no
+DS002,US Chronic Disease Indicators,StratificationID3,0,398793,,no
+DS009,ACS 5-Year S2701 Health Insurance County,NAME,3222,0,"Autauga County, Alabama",yes
+DS009,ACS 5-Year S2701 Health Insurance County,GEO_ID,3222,0,0500000US01001,yes
+DS009,ACS 5-Year S2701 Health Insurance County,state,3222,0,01,yes
+DS009,ACS 5-Year S2701 Health Insurance County,county,3222,0,001,yes
+DS009,ACS 5-Year S2701 Health Insurance County,S2701_C01_001E,3222,0,58355,yes

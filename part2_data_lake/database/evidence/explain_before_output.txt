@@ -1,0 +1,205 @@
+===== Q01 Account lookup by business key (50 rows) =====
+                                                                                                                      QUERY PLAN                                                                                                                       
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Seq Scan on account  (cost=0.00..2.25 rows=1 width=33) (actual time=0.004..0.006 rows=1 loops=1)
+   Filter: (((accountname)::text = 'Demo Account 7'::text) AND ((address1)::text = '7 Main St'::text) AND ((city)::text = 'City7'::text) AND ((state)::text = 'AR'::text) AND ((zip)::text = '70007'::text) AND ((companycode)::text = 'DEMO7'::text))
+   Rows Removed by Filter: 49
+   Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=121
+ Planning Time: 0.160 ms
+ Execution Time: 0.018 ms
+(8 rows)
+
+
+===== Q02 Customer lookup by surname (200 rows) =====
+                                            QUERY PLAN                                             
+---------------------------------------------------------------------------------------------------
+ Seq Scan on customer  (cost=0.00..4.50 rows=1 width=19) (actual time=0.007..0.015 rows=1 loops=1)
+   Filter: ((custlastname)::text = 'Last42'::text)
+   Rows Removed by Filter: 199
+   Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=66
+ Planning Time: 0.142 ms
+ Execution Time: 0.034 ms
+(8 rows)
+
+
+===== Q03 Contract lookup by contract number (300 rows) =====
+                                            QUERY PLAN                                             
+---------------------------------------------------------------------------------------------------
+ Seq Scan on contract  (cost=0.00..6.75 rows=1 width=24) (actual time=0.009..0.014 rows=1 loops=1)
+   Filter: ((contractnumber)::text = 'C-000123'::text)
+   Rows Removed by Filter: 299
+   Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=102
+ Planning Time: 0.168 ms
+ Execution Time: 0.027 ms
+(8 rows)
+
+
+===== Q04 Account-to-active-contract retrieval (300 rows) =====
+                                                            QUERY PLAN                                                            
+----------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=7.34..7.35 rows=5 width=24) (actual time=0.019..0.020 rows=4 loops=1)
+   Sort Key: effectivedate DESC
+   Sort Method: quicksort  Memory: 25kB
+   Buffers: shared hit=7
+   ->  Bitmap Heap Scan on contract  (cost=4.19..7.28 rows=5 width=24) (actual time=0.008..0.010 rows=4 loops=1)
+         Recheck Cond: (accountid = 12)
+         Filter: ((status)::text = 'Active'::text)
+         Rows Removed by Filter: 2
+         Heap Blocks: exact=3
+         Buffers: shared hit=4
+         ->  Bitmap Index Scan on ix_contract_account  (cost=0.00..4.19 rows=6 width=0) (actual time=0.005..0.005 rows=6 loops=1)
+               Index Cond: (accountid = 12)
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=129
+ Planning Time: 0.175 ms
+ Execution Time: 0.037 ms
+(17 rows)
+
+
+===== Q06 Geographic-area-to-account retrieval (50 rows) =====
+                                                        QUERY PLAN                                                         
+---------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=1.76..3.40 rows=1 width=35) (actual time=0.010..0.011 rows=0 loops=1)
+   Hash Cond: (a.accountid = ag.accountid)
+   Buffers: shared hit=2
+   ->  Seq Scan on account a  (cost=0.00..1.50 rows=50 width=19) (actual time=0.001..0.001 rows=1 loops=1)
+         Buffers: shared hit=1
+   ->  Hash  (cost=1.75..1.75 rows=1 width=20) (actual time=0.003..0.003 rows=0 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 8kB
+         Buffers: shared hit=1
+         ->  Seq Scan on account_geography ag  (cost=0.00..1.75 rows=1 width=20) (actual time=0.003..0.003 rows=0 loops=1)
+               Filter: ((geographyid = 1200) AND ((relationshiptype)::text = 'PrimaryLocation'::text))
+               Rows Removed by Filter: 50
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=249
+ Planning Time: 0.279 ms
+ Execution Time: 0.027 ms
+(16 rows)
+
+
+===== Q07 County FIPS to health indicator retrieval (3196 rows) =====
+                                                                         QUERY PLAN                                                                          
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.57..16.71 rows=1 width=78) (actual time=0.015..0.015 rows=0 loops=1)
+   Buffers: shared hit=4
+   ->  Nested Loop  (cost=0.43..16.47 rows=1 width=24) (actual time=0.015..0.015 rows=0 loops=1)
+         Buffers: shared hit=4
+         ->  Index Scan using ix_geography_countyfips on geographic_area g  (cost=0.28..8.30 rows=1 width=18) (actual time=0.011..0.012 rows=1 loops=1)
+               Index Cond: ((countyfips)::text = '05119'::text)
+               Buffers: shared hit=3
+         ->  Index Scan using ix_observation_geography on health_observation ho  (cost=0.15..8.17 rows=1 width=14) (actual time=0.002..0.002 rows=0 loops=1)
+               Index Cond: (geographyid = g.geographyid)
+               Buffers: shared hit=1
+   ->  Index Scan using health_indicator_pkey on health_indicator hi  (cost=0.14..0.24 rows=1 width=62) (never executed)
+         Index Cond: (indicatorid = ho.indicatorid)
+ Planning:
+   Buffers: shared hit=322
+ Planning Time: 0.397 ms
+ Execution Time: 0.038 ms
+(16 rows)
+
+
+===== Q08 Account-to-regional-health five-table join (n/a rows) =====
+                                                                                 QUERY PLAN                                                                                  
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=2.21..10.45 rows=1 width=89) (actual time=0.027..0.029 rows=1 loops=1)
+   Buffers: shared hit=18
+   ->  Nested Loop  (cost=2.06..10.21 rows=1 width=35) (actual time=0.025..0.027 rows=1 loops=1)
+         Join Filter: (ag.geographyid = g.geographyid)
+         Buffers: shared hit=16
+         ->  Nested Loop  (cost=1.78..9.42 rows=1 width=37) (actual time=0.020..0.021 rows=1 loops=1)
+               Buffers: shared hit=13
+               ->  Merge Join  (cost=1.78..7.79 rows=1 width=22) (actual time=0.017..0.018 rows=1 loops=1)
+                     Merge Cond: (ho.geographyid = ag.geographyid)
+                     Buffers: shared hit=12
+                     ->  Index Scan using ix_observation_geography on health_observation ho  (cost=0.15..36.93 rows=320 width=14) (actual time=0.003..0.007 rows=14 loops=1)
+                           Buffers: shared hit=11
+                     ->  Sort  (cost=1.64..1.64 rows=1 width=8) (actual time=0.007..0.007 rows=1 loops=1)
+                           Sort Key: ag.geographyid
+                           Sort Method: quicksort  Memory: 25kB
+                           Buffers: shared hit=1
+                           ->  Seq Scan on account_geography ag  (cost=0.00..1.62 rows=1 width=8) (actual time=0.003..0.004 rows=1 loops=1)
+                                 Filter: (accountid = 12)
+                                 Rows Removed by Filter: 49
+                                 Buffers: shared hit=1
+               ->  Seq Scan on account a  (cost=0.00..1.62 rows=1 width=19) (actual time=0.002..0.003 rows=1 loops=1)
+                     Filter: (accountid = 12)
+                     Rows Removed by Filter: 49
+                     Buffers: shared hit=1
+         ->  Index Scan using geographic_area_pkey on geographic_area g  (cost=0.28..0.77 rows=1 width=10) (actual time=0.005..0.005 rows=1 loops=1)
+               Index Cond: (geographyid = ho.geographyid)
+               Buffers: shared hit=3
+   ->  Index Scan using health_indicator_pkey on health_indicator hi  (cost=0.14..0.24 rows=1 width=62) (actual time=0.002..0.002 rows=1 loops=1)
+         Index Cond: (indicatorid = ho.indicatorid)
+         Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=424
+ Planning Time: 0.656 ms
+ Execution Time: 0.072 ms
+(34 rows)
+
+
+===== Q09 Dataset-to-data-asset lineage lookup (10 rows) =====
+                                                  QUERY PLAN                                                   
+---------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.00..2.28 rows=1 width=168) (actual time=0.006..0.006 rows=1 loops=1)
+   Buffers: shared hit=2
+   ->  Seq Scan on dataset d  (cost=0.00..1.12 rows=1 width=6) (actual time=0.003..0.004 rows=1 loops=1)
+         Filter: ((datasetid)::text = 'DS010'::text)
+         Rows Removed by Filter: 9
+         Buffers: shared hit=1
+   ->  Seq Scan on data_asset da  (cost=0.00..1.15 rows=1 width=168) (actual time=0.002..0.002 rows=1 loops=1)
+         Filter: (((datasetid)::text = 'DS010'::text) AND ((assettype)::text = 'unstructured document'::text))
+         Rows Removed by Filter: 9
+         Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=152
+ Planning Time: 0.220 ms
+ Execution Time: 0.027 ms
+(14 rows)
+
+
+===== Q13 Regional indicator aggregation (320 rows) =====
+                                                                           QUERY PLAN                                                                            
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=37.34..37.41 rows=25 width=101) (actual time=0.179..0.182 rows=25 loops=1)
+   Buffers: shared hit=301
+   ->  Sort  (cost=37.34..37.41 rows=26 width=101) (actual time=0.179..0.180 rows=25 loops=1)
+         Sort Key: (avg(ho.measurevalue)) DESC
+         Sort Method: top-N heapsort  Memory: 30kB
+         Buffers: shared hit=301
+         ->  HashAggregate  (cost=36.41..36.73 rows=26 width=101) (actual time=0.147..0.159 rows=85 loops=1)
+               Group Key: hi.indicatorname, g.statecode
+               Batches: 1  Memory Usage: 88kB
+               Buffers: shared hit=298
+               ->  Nested Loop  (cost=6.28..36.15 rows=26 width=67) (actual time=0.031..0.121 rows=96 loops=1)
+                     Buffers: shared hit=298
+                     ->  Hash Join  (cost=6.00..16.06 rows=26 width=68) (actual time=0.023..0.051 rows=96 loops=1)
+                           Hash Cond: (ho.indicatorid = hi.indicatorid)
+                           Buffers: shared hit=10
+                           ->  Seq Scan on health_observation ho  (cost=0.00..9.20 rows=320 width=14) (actual time=0.002..0.013 rows=320 loops=1)
+                                 Buffers: shared hit=6
+                           ->  Hash  (cost=5.85..5.85 rows=12 width=62) (actual time=0.010..0.010 rows=12 loops=1)
+                                 Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                 Buffers: shared hit=4
+                                 ->  Seq Scan on health_indicator hi  (cost=0.00..5.85 rows=12 width=62) (actual time=0.002..0.008 rows=12 loops=1)
+                                       Filter: ((factorcategory)::text = 'Disease outcome'::text)
+                                       Rows Removed by Filter: 136
+                                       Buffers: shared hit=4
+                     ->  Index Scan using geographic_area_pkey on geographic_area g  (cost=0.28..0.77 rows=1 width=7) (actual time=0.001..0.001 rows=1 loops=96)
+                           Index Cond: (geographyid = ho.geographyid)
+                           Buffers: shared hit=288
+ Planning:
+   Buffers: shared hit=339
+ Planning Time: 0.389 ms
+ Execution Time: 0.207 ms
+(31 rows)
+

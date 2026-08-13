@@ -1,0 +1,72 @@
+digraph ReferenceArchitecture {
+  graph [rankdir=LR, fontname="Helvetica", labelloc="t", fontsize=22, nodesep=0.35, ranksep=1.0,
+         label="Project Part II - Reference Architecture (Google Cloud)\nHybrid data lake feeding the insurance logical schema"];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#888888"];
+  edge [fontname="Helvetica", fontsize=9, color="#555555"];
+
+  // External sources
+  subgraph cluster_src {
+    label="External Public Sources"; style="rounded"; color="#3E9B4F"; fontcolor="#3E9B4F"; fontsize=14;
+    node [fillcolor="#E9F7EC"];
+    S1 [label="CDC PLACES\n(county)"];
+    S2 [label="CDC Chronic\nDisease Indicators"];
+    S3 [label="County Health\nRankings"];
+    S4 [label="Census ACS\n5-Year"];
+    S5 [label="CHR / State\nPDF reports"];
+  }
+
+  // Ingestion
+  CDF [label="Cloud Data Fusion\nIngestion + Processing\n+ Data Quality", shape=box, fillcolor="#FFF3E0", color="#E08A2B"];
+
+  // Data lake zones
+  subgraph cluster_lake {
+    label="Google Cloud Storage Bucket"; style="rounded"; color="#3B76C4"; fontcolor="#3B76C4"; fontsize=14;
+    node [fillcolor="#E8F1FB"];
+    RAW  [label="Raw Zone\ndownloaded files\n+ checksums"];
+    PROC [label="Processed Zone\nstandardized columns"];
+    CUR  [label="Curated Zone\ngeography, indicator,\nobservation tables"];
+    META [label="Metadata Zone\ncatalog, dictionary,\nquality, lineage"];
+  }
+
+  // Database
+  PG [label="Cloud SQL for PostgreSQL\nODS / Logical Schema", shape=cylinder, fillcolor="#F1EBFA", color="#7E57C2"];
+
+  // Consumers
+  subgraph cluster_consume {
+    label="Reporting and Analytics"; style="rounded"; color="#C0447A"; fontcolor="#C0447A"; fontsize=14;
+    node [fillcolor="#FCEBF1"];
+    RPT   [label="Looker Studio\nReporting"];
+    CLAIMS[label="Claims\nPlanning"];
+    PROD  [label="Product\nDesign"];
+    RATE  [label="Rate Book\nReview"];
+  }
+
+  // Governance band
+  subgraph cluster_gov {
+    label="Governance and DIKW Controls"; style="rounded"; color="#555555"; fontcolor="#333333"; fontsize=14;
+    node [fillcolor="#EFEFEF", shape=box];
+    MG [label="Metadata\nManagement"];
+    DQ [label="Data\nQuality"];
+    AC [label="Cloud IAM\nAccess Control"];
+    ENC[label="Encryption\n(default)"];
+    RET[label="Retention\n(lifecycle rules)"];
+    AUD[label="Cloud\nAudit Logs"];
+    DPX[label="Dataplex Universal\nCatalog (optional)"];
+  }
+
+  // Main flow
+  S1 -> CDF; S2 -> CDF; S3 -> CDF; S4 -> CDF; S5 -> CDF;
+  CDF -> RAW;
+  RAW -> PROC -> CUR;
+  META -> RAW [style=dashed, dir=none];
+  META -> PROC [style=dashed, dir=none];
+  META -> CUR [style=dashed, dir=none];
+  CUR -> PG [label="load ODS"];
+  PG -> RPT; PG -> CLAIMS; PG -> PROD; PG -> RATE;
+
+  // Governance touches everything
+  MG -> META [style=dotted, dir=none, color="#999999"];
+  DQ -> CDF [style=dotted, dir=none, color="#999999"];
+  AC -> PG [style=dotted, dir=none, color="#999999"];
+  ENC -> RAW [style=dotted, dir=none, color="#999999"];
+}

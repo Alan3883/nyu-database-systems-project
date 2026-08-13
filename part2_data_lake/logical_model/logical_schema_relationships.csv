@@ -1,0 +1,34 @@
+ParentEntity,ChildEntity,Cardinality,RelationshipLabel
+ACCOUNT,ACCOUNT_ALIAS,1:N (optional child),is consolidated from
+ACCOUNT,ACCOUNT_BILLING_ACCOUNT,1:N (optional child),is billed through
+BILLING_ACCOUNT,ACCOUNT_BILLING_ACCOUNT,1:N (optional child),serves
+ACCOUNT,ACCOUNT_ADMIN_ASSIGNMENT,1:N (optional child),is administered via
+ACCOUNT_ADMIN,ACCOUNT_ADMIN_ASSIGNMENT,1:N (optional child),is assigned via
+ACCOUNT,ACCOUNT_RELATIONSHIP,1:N (optional child),is master in
+ACCOUNT,ACCOUNT_RELATIONSHIP,1:N (optional child),is member in
+ACCOUNT,ACCOUNT_MEMBER,1:N (optional child),employs via
+CUSTOMER,ACCOUNT_MEMBER,1:N (optional child),is employed via
+ACCOUNT,ACCOUNT_MANAGER_CONTRACT,1:N (optional child),is serviced via
+MANAGER_CONTRACT,ACCOUNT_MANAGER_CONTRACT,1:N (optional child),services via
+ASSOCIATE,MANAGER_CONTRACT,1:N (optional child),holds
+ASSOCIATE,ASSOCIATE_RELATIONSHIP,1:N (optional child),is primary in
+ASSOCIATE,ASSOCIATE_RELATIONSHIP,1:N (optional child),is related in
+ASSOCIATE,CUSTOMER_ASSOCIATE_ROLE,1:N (optional child),is linked via
+CUSTOMER,CUSTOMER_ASSOCIATE_ROLE,1:N (optional child),is linked via
+CUSTOMER,CUSTOMER_RELATIONSHIP,1:N (optional child),is primary in
+CUSTOMER,CUSTOMER_RELATIONSHIP,1:N (optional child),is related in
+CUSTOMER,CUSTOMER_CONTRACT_ROLE,1:N (optional child),plays role via
+CONTRACT,CUSTOMER_CONTRACT_ROLE,1:N (optional child),has role via
+CUSTOMER,CUSTOMER_BENEFIT_ROLE,1:N (optional child),plays role via
+CONTRACT_BENEFIT,CUSTOMER_BENEFIT_ROLE,1:N (optional child),has role via
+ACCOUNT,CONTRACT,1:N (optional child),sponsors
+CONTRACT,CONTRACT_BENEFIT,1:N (mandatory child),contains
+CONTRACT_BENEFIT,CONTRACT_PREMIUM,1:N (mandatory child),is priced by
+MANAGER_CONTRACT,CONTRACT_PREMIUM,1:N (optional child),earns credit for
+DATASET,DATA_ASSET,1:N (optional child),has file
+DATASET,HEALTH_OBSERVATION,1:N (optional child),provides
+GEOGRAPHIC_AREA,HEALTH_OBSERVATION,1:N (optional child),measured in
+HEALTH_INDICATOR,HEALTH_OBSERVATION,1:N (optional child),described by
+GEOGRAPHIC_AREA,GEOGRAPHIC_AREA,1:N (optional child),is parent of
+ACCOUNT,ACCOUNT_GEOGRAPHY,1:N (optional child),is located via
+GEOGRAPHIC_AREA,ACCOUNT_GEOGRAPHY,1:N (optional child),locates via
