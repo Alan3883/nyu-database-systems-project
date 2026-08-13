@@ -121,8 +121,9 @@ optionally `bq`/`gcloud` for the BigQuery step and Node for regenerating
 diagrams.
 
 ```bash
-python3 -m pip install -r part2_data_lake/scripts/requirements.txt
-python3 -m pip install sqlalchemy flask "psycopg[binary]" pytest playwright
+python3 -m pip install -r part4/requirements.txt          # Part IV + the Part III ML pipeline
+python3 -m pip install -r part2_data_lake/scripts/requirements.txt   # Part II ingestion extras
+python3 -m playwright install chromium                    # only for screenshot capture
 ```
 
 Start the database and configure credentials — nothing is stored in this

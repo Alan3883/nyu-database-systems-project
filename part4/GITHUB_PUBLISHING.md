@@ -1,14 +1,12 @@
 # Publishing the software to GitHub
 
-The Part IV assignment requires the software portion of the project to be
-available through a GitHub link, and that link must appear in the report. The
-repository has not been published yet, so that requirement is **not complete**.
+**Status: done.** The repository is published at
+<https://github.com/Alan3883/nyu-database-systems-project> — public, branch
+`main`, 259 files, Parts I to IV. The URL is on the report title page and in
+section 1.1.
 
-Everything needed to publish is ready: the tree is organised, `.gitignore` is
-written, and the source has been scanned for credentials. What remains is the
-commit and push, which must be made under your own identity.
-
-This file is not part of the Brightspace submission.
+This file is kept as the record of how the repository was prepared and what was
+deliberately excluded from it. It is not part of the Brightspace submission.
 
 ---
 

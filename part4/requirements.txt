@@ -1,0 +1,36 @@
+# Part IV dependencies.
+#
+#   python3 -m pip install -r part4/requirements.txt
+#
+# Part IV reuses the Part III machine-learning pipeline, so the packages
+# that pipeline needs are listed here too. Installing this file alone is
+# enough to run the application, the pipeline jobs, and the tests.
+#
+# Lower bounds are the versions the project was developed and measured
+# against; nothing is pinned exactly, because a course project should
+# still install a year from now.
+
+# --- application and database ----------------------------------------
+# SQLAlchemy 2.x is required: the mappings use the 2.0 declarative style
+# (Mapped[...] annotations and mapped_column), which 1.4 cannot parse.
+SQLAlchemy>=2.0.30
+Flask>=3.0
+# psycopg 3, not psycopg2. The URL scheme postgresql+psycopg:// selects it.
+psycopg[binary]>=3.1
+
+# --- machine-learning pipeline reused from Part III -------------------
+scikit-learn>=1.4
+numpy>=1.26
+pypdf>=4.0
+pyyaml>=6.0
+joblib>=1.3
+
+# --- tests and evidence capture ---------------------------------------
+pytest>=8.0
+# Playwright drives the screenshot capture. After installing, fetch the
+# browser once:  python3 -m playwright install chromium
+playwright>=1.40
+
+# --- report generation (optional) -------------------------------------
+# Only needed to regenerate the Word report; not needed to run anything.
+python-docx>=1.1

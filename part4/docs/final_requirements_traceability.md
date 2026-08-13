@@ -6,11 +6,7 @@ that evidence was validated.
 
 Statuses: **Complete**, **Partial**, **Not complete**, **Not applicable**.
 
-GitHub: **not yet published.** The repository is prepared — the tree is
-organised, `.gitignore` is written, and the source is scanned for credentials —
-but the commit and push must be made under the author's own identity. The exact
-procedure is in `part4/GITHUB_PUBLISHING.md`. Requirements D3 and D4 below are
-therefore marked *Not complete*.
+GitHub: <https://github.com/Alan3883/nyu-database-systems-project> (public, 259 files, Parts I-IV).
 
 ---
 
@@ -91,8 +87,8 @@ therefore marked *Not complete*.
 |---|---|---|---|---|
 | D1 | One ZIP submitted to Brightspace | `part4/submission/mo_final-project_su26.zip` | ZIP integrity verified with `unzip -t` | Complete |
 | D2 | Report in Microsoft Word format | `part4/report/Database_Systems_Final_Project_Report.docx` | Opens in Word; screenshots render | Complete |
-| D3 | Software available through GitHub | Repository prepared: tree organised, `.gitignore` written, credential scan clean | `part4/GITHUB_PUBLISHING.md` gives the exact commands | **Not complete** — awaiting publication under the author's identity |
-| D4 | GitHub link clearly indicated in the report | The report states the publication status and names the three places the URL must be inserted | Report title page, §1.1, §9.2 | **Not complete** — depends on D3 |
+| D3 | Software available through GitHub | Public repository with `part1/`, `part2_data_lake/` (Parts II and III), and `part4/` | <https://github.com/Alan3883/nyu-database-systems-project> — 259 files, no credential, no bulk data | Complete |
+| D4 | GitHub link clearly indicated in the report | URL on the title page and in §1.1 | Report | Complete |
 | D5 | Final versions of Parts I–IV | `part1/`, `part2_data_lake/` (Parts II and III), `part4/` | Directory listing under `2433-Database/` | Complete |
 | D6 | Archive naming convention | `mo_final-project_su26.zip` (individual submission) | — | Complete |
 
@@ -111,7 +107,7 @@ therefore marked *Not complete*.
 
 | Status | Count |
 |---|---|
-| Complete | 46 |
+| Complete | 48 |
 | Partial | 0 |
-| Not complete | 2 (D3, D4: GitHub publication) |
+| Not complete | 0 |
 | Not applicable | 0 |

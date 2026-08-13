@@ -80,6 +80,7 @@ made both harder to reason about.
 ## Running
 
 ```bash
+python3 -m pip install -r part4/requirements.txt
 cp part4/.env.example part4/.env   # then fill in the database password
 ```
 
