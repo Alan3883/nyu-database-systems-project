@@ -1,6 +1,6 @@
 # NYU CSCI-GA.2433-001 Database Systems — Course Project
 
-Alan Mo (bm3883) · Summer 2026 · Instructor: Jean-Claude Franchitti
+Alan · Summer 2026 · Instructor: Jean-Claude Franchitti
 
 An insurance enterprise data architecture built across four milestones: a
 conceptual model, a hybrid logical schema with a four-zone data lake, an
